@@ -1,0 +1,14 @@
+{
+  "name": "@micro-graphql/core",
+  "version": "0.0.1",
+  "license": "MIT",
+  "main": "lib/index.js",
+  "typings": "lib/index.d.ts",
+  "scripts": {
+    "build": "tsc --build ./tsconfig.json",
+    "dev": "tsc --build ./tsconfig.json -w"
+  },
+  "devDependencies": {
+    "typescript": "^3.7.5"
+  }
+}

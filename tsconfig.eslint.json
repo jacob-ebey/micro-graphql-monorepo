@@ -1,0 +1,18 @@
+{
+	"extends": "./tsconfig.json",
+	"include": [
+		"./packages/core/**/*.ts",
+		"./packages/core/**/*.tsx",
+		"./packages/hooks/**/*.ts",
+		"./packages/hooks/**/*.tsx",
+		"./packages/ssr/**/*.ts",
+		"./packages/ssr/**/*.tsx",
+		"./packages/next-example/**/*.ts",
+		"./packages/next-example/**/*.tsx"
+	],
+	"exclude": [
+		"node_modules",
+		// Disable build
+		"./*/*/lib/**/*.ts"
+	]
+}

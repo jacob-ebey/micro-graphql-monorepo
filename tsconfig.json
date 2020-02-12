@@ -1,0 +1,15 @@
+{
+  "extends": "./tsconfig.base.json",
+  "compilerOptions": {
+    "noEmit": true,
+    "baseUrl": ".",
+    "jsx": "react",
+    "paths": {
+      "@micro-graphql/*": [
+        "./core/*/src",
+        "./hooks/*/src",
+      ]
+    },
+    "typeRoots": ["node_modules/@types"]
+  }
+}

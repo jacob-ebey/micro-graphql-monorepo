@@ -1,0 +1,17 @@
+{
+	"name": "micro-graphql-monorepo",
+	"verbose": true,
+	"preset": "ts-jest",
+	"testEnvironment": "node",
+	"testMatch": [
+		"<rootDir>/packages/*/test/**/*.test.ts",
+		"<rootDir>/packages/*/test/**/*.test.tsx"
+	],
+	"collectCoverageFrom": [
+		"<rootDir>/packages/*/src/**/*.ts",
+		"<rootDir>/packages/*/src/**/*.tsx"
+	],
+	"watchPathIgnorePatterns": [
+		"/node_modules/"
+	]
+}
