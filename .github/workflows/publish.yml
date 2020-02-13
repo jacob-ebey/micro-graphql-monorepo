@@ -17,18 +17,13 @@ jobs:
       uses: actions/setup-node@v1
       with:
         node-version: ${{ matrix.node-version }}
+    - run: >
+        echo $NODE_AUTH_TOKEN >> .npmrc && echo echo $NODE_AUTH_TOKEN >> .yarnrc
+      env:
+        NODE_AUTH_TOKEN: ${{secrets.NODE_AUTH_TOKEN}}
     - run: yarn
-      env:
-        NODE_AUTH_TOKEN: ${{secrets.NODE_AUTH_TOKEN}}
     - run: yarn build:lib
-      env:
-        NODE_AUTH_TOKEN: ${{secrets.NODE_AUTH_TOKEN}}
-        
     - name: Deploy core
       run: (cd packages/core && npm version patch && npm publish --access public)
-      env:
-        NODE_AUTH_TOKEN: ${{secrets.NODE_AUTH_TOKEN}}
     - name: Deploy hooks
       run: (cd packages/hooks && npm version patch && npm publish --access public)
-      env:
-        NODE_AUTH_TOKEN: ${{secrets.NODE_AUTH_TOKEN}}
