@@ -8,7 +8,7 @@
 ## Full examples
 
 - NEXT.JS with SSR and hydration [EXAMPLE](https://github.com/jacob-ebey/micro-graphql-monorepo/tree/master/packages/next-example)
-- Create React App [EXAMPLE](https://codesandbox.io/s/github/jacob-ebey/micro-graphql-cra-example/tree/master/);
+- Create React App [EXAMPLE](https://codesandbox.io/s/github/jacob-ebey/micro-graphql-cra-example/tree/master/)
 
 ## React quickstart
 
