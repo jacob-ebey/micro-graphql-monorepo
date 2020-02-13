@@ -46,19 +46,19 @@ const Home = () => {
     React.useMemo(
       () => ({
         query: `
-			query TestQuery($id: ID) {
-				film(id: $id) {
-					id
-					title
-				}
-				allFilms {
-					films {
-						id
-						title
-					}
-				}
-			}
-		`,
+          query TestQuery($id: ID) {
+            film(id: $id) {
+              id
+              title
+            }
+            allFilms {
+              films {
+                id
+                title
+              }
+            }
+          }
+        `,
         variables: {
           id: episodeId
         }
