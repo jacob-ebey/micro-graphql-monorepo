@@ -25,7 +25,7 @@ jobs:
     - run: git config --global user.email "jacob.ebey@live.com" && git config --global user.name "CI Bot"
     - run: cp ./.yarnrc packages/core && cp ./.npmrc packages/core
     - name: Publish packages
-      run: ./node_modules/.bin/lerna publish from-git
+      run: ./node_modules/.bin/lerna publish from-git --yes
       env:
         NODE_AUTH_TOKEN: ${{secrets.NPM_TOKEN}}
     # - name: Deploy core
