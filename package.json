@@ -19,7 +19,8 @@
     "ci": "run-p test lint",
     "test": "yarn build:lib && jest --config jest.config.json --no-cache --coverage",
     "lint": "eslint packages/*/src/**/*.ts packages/*/test/**/*.ts packages/*/test/**/*.tsx packages/next-example/**/*.tsx",
-    "postinstall": "echo lerna bootstrap && echo lerna link"
+    "postinstall": "echo lerna bootstrap && echo lerna link",
+    "version": "lerna version"
   },
   "devDependencies": {
     "@testing-library/react-hooks": "^3.2.1",
