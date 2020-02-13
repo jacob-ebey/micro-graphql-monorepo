@@ -13,6 +13,8 @@ jobs:
 
     steps:
     - uses: actions/checkout@v2
+      with:
+        ref: 'master'
     - name: Use node.js ${{ matrix.node-version }}
       uses: actions/setup-node@v1
       with:
@@ -21,7 +23,6 @@ jobs:
       run: |
         git config --global user.name 'CI Bot'
         git config --global user.email 'jacob.ebey@live.com'
-        git checkout origin/master
       env:
         GITHUB_PAT: ${{ secrets.GITHUB_PAT }}
     - name: Authenticate with registry
