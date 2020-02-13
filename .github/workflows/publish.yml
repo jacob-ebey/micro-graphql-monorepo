@@ -24,5 +24,9 @@ jobs:
     - run: yarn build:lib
     - name: Deploy core
       run: (cd packages/core && npm version patch && npm publish --access public)
+      env:
+        NODE_AUTH_TOKEN: ${{secrets.NPM_TOKEN}}
     - name: Deploy hooks
       run: (cd packages/hooks && npm version patch && npm publish --access public)
+      env:
+        NODE_AUTH_TOKEN: ${{secrets.NPM_TOKEN}}
