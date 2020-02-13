@@ -24,6 +24,7 @@ jobs:
         NODE_AUTH_TOKEN: ${{secrets.NODE_AUTH_TOKEN}}
     - run: yarn
     - run: yarn build:lib
+    - run: git config --global user.email "jacob.ebey@live.com" && git config --global user.name "CI Bot"
     - run: cp ./.yarnrc packages/core && cp ./.npmrc packages/core
     - name: Deploy core
       run: (cd packages/core && yarn publish --access public --new-version $(echo $REF | egrep -o "([0-9]{1,}\.)+[0-9]{1,}(-[0-9a-z]+)"))
