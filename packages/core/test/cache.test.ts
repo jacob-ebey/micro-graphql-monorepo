@@ -1,8 +1,8 @@
 /* eslint-disable import/extensions */
-import { createCache, ITinyGraphQLCache } from '../src';
+import { createCache, IMicroGraphQLCache } from '../src';
 
 describe('cache', () => {
-	let cache: ITinyGraphQLCache;
+	let cache: IMicroGraphQLCache;
 
 	beforeEach(() => {
 		cache = createCache();

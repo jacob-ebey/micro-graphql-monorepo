@@ -1,52 +1,52 @@
 import * as React from 'react';
 
 import {
-	ITinyGraphQLClient,
-	ITinyGraphQLResult,
-	ITinyGraphQLSubscriptionOptions,
+	IMicroGraphQLClient,
+	IMicroGraphQLResult,
+	IMicroGraphQLSubscriptionOptions,
 	queryKeyError,
-	TinyGraphQLKeyError
+	MicroGraphQLKeyError
 } from '@micro-graphql/core';
 
-export const noClientError = 'no client provided, make sure a TinyGraphQLProvider is somewhere up the tree';
+export const noClientError = 'no client provided, make sure a MicroGraphQLProvider is somewhere up the tree';
 
-export class TinyGraphQLHooksNoClientProvidedError extends Error {}
+export class MicroGraphQLHooksNoClientProvidedError extends Error {}
 
-export interface IUseQueryResult<TData> extends ITinyGraphQLResult<TData> {
+export interface IUseQueryResult<TData> extends IMicroGraphQLResult<TData> {
 	loading: boolean;
 }
 
-export interface ITinyGraphQLContextValue {
-	client: ITinyGraphQLClient;
+export interface IMicroGraphQLContextValue {
+	client: IMicroGraphQLClient;
 	requestQuery: <TQueryVariables>(
-		options: ITinyGraphQLSubscriptionOptions<TQueryVariables>
+		options: IMicroGraphQLSubscriptionOptions<TQueryVariables>
 	) => void;
 }
 
-export const TinyGraphQLContext = React.createContext<ITinyGraphQLContextValue>({
+export const MicroGraphQLContext = React.createContext<IMicroGraphQLContextValue>({
 	client: {
 		hash(): string {
-			throw new TinyGraphQLHooksNoClientProvidedError(noClientError);
+			throw new MicroGraphQLHooksNoClientProvidedError(noClientError);
 		},
-		async query<TData>(): Promise<ITinyGraphQLResult<TData>> {
-			throw new TinyGraphQLHooksNoClientProvidedError(noClientError);
+		async query<TData>(): Promise<IMicroGraphQLResult<TData>> {
+			throw new MicroGraphQLHooksNoClientProvidedError(noClientError);
 		},
 		subscribe(): () => void {
-			throw new TinyGraphQLHooksNoClientProvidedError(noClientError);
+			throw new MicroGraphQLHooksNoClientProvidedError(noClientError);
 		},
 		async resolveQueries(): Promise<void> {
-			throw new TinyGraphQLHooksNoClientProvidedError(noClientError);
+			throw new MicroGraphQLHooksNoClientProvidedError(noClientError);
 		}
 	},
 	requestQuery(): () => void {
-		throw new TinyGraphQLHooksNoClientProvidedError(noClientError);
+		throw new MicroGraphQLHooksNoClientProvidedError(noClientError);
 	}
 });
 
-export interface ITinyGraphQLProviderProps {
-	client: ITinyGraphQLClient;
+export interface IMicroGraphQLProviderProps {
+	client: IMicroGraphQLClient;
 }
-export const TinyGraphQLProvider: React.FC<ITinyGraphQLProviderProps> = ({
+export const MicroGraphQLProvider: React.FC<IMicroGraphQLProviderProps> = ({
 	client,
 	children
 }) => {
@@ -54,10 +54,10 @@ export const TinyGraphQLProvider: React.FC<ITinyGraphQLProviderProps> = ({
 		[key: string]: boolean;
 	}>({});
 
-	const value: ITinyGraphQLContextValue = React.useMemo(() => ({
+	const value: IMicroGraphQLContextValue = React.useMemo(() => ({
 		client,
 		requestQuery<TQueryVariables>(
-			options: ITinyGraphQLSubscriptionOptions<TQueryVariables>
+			options: IMicroGraphQLSubscriptionOptions<TQueryVariables>
 		): void {
 			const key = client.hash({
 				query: options.query,
@@ -65,7 +65,7 @@ export const TinyGraphQLProvider: React.FC<ITinyGraphQLProviderProps> = ({
 			});
 
 			if (!key) {
-				throw new TinyGraphQLKeyError(queryKeyError);
+				throw new MicroGraphQLKeyError(queryKeyError);
 			}
 
 			let shouldLoad = true;
@@ -87,14 +87,14 @@ export const TinyGraphQLProvider: React.FC<ITinyGraphQLProviderProps> = ({
 	}), [client]);
 
 	return (
-		<TinyGraphQLContext.Provider value={value}>
+		<MicroGraphQLContext.Provider value={value}>
 			{children}
-		</TinyGraphQLContext.Provider>
+		</MicroGraphQLContext.Provider>
 	);
 };
 
-export function useClient(): ITinyGraphQLClient {
-	const { client } = React.useContext(TinyGraphQLContext);
+export function useClient(): IMicroGraphQLClient {
+	const { client } = React.useContext(MicroGraphQLContext);
 
 	return client;
 }

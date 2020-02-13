@@ -1,16 +1,16 @@
 import * as React from 'react';
 
 import {
-	ITinyGraphQLSubscriptionOptions
+	IMicroGraphQLSubscriptionOptions
 } from '@micro-graphql/core';
 
 import {
 	IUseQueryResult,
-	TinyGraphQLContext
+	MicroGraphQLContext
 } from './context';
 
 export interface IUseQueryOptions<TVariables>
-	extends ITinyGraphQLSubscriptionOptions<TVariables> {
+	extends IMicroGraphQLSubscriptionOptions<TVariables> {
 	skip?: boolean;
 }
 
@@ -21,7 +21,7 @@ const noop = (): void => {};
 export function useQuery<TData, TQueryVariables>(
 	options: IUseQueryOptions<TQueryVariables>
 ): IUseQueryResult<TData> {
-	const { client, requestQuery } = React.useContext(TinyGraphQLContext);
+	const { client, requestQuery } = React.useContext(MicroGraphQLContext);
 
 	const firstRender = React.useRef<boolean>(true);
 	const resultRef = React.useRef<IUseQueryResult<TData>>({

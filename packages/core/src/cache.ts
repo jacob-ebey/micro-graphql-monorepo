@@ -1,20 +1,20 @@
-export interface ITinyGraphQLCacheResult<TValue> {
+export interface IMicroGraphQLCacheResult<TValue> {
 	data?: TValue;
 	success: boolean;
 }
 
-export interface ITinyGraphQLCache {
-	tryGet<TValue>(key: string): ITinyGraphQLCacheResult<TValue>;
+export interface IMicroGraphQLCache {
+	tryGet<TValue>(key: string): IMicroGraphQLCacheResult<TValue>;
 	trySet<TValue>(key: string, data?: TValue): boolean;
 	stringify(): string;
 	restore(data: string): void;
 }
 
-export function createCache(): ITinyGraphQLCache {
+export function createCache(): IMicroGraphQLCache {
 	let cache: { [key: string]: unknown } = {};
 
 	return {
-		tryGet: <TValue>(key: string): ITinyGraphQLCacheResult<TValue> => {
+		tryGet: <TValue>(key: string): IMicroGraphQLCacheResult<TValue> => {
 			const success = key in cache;
 			const data = success ? cache[key] : undefined;
 

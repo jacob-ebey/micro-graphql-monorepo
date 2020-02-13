@@ -59,7 +59,7 @@ Wrap your app in a client provider and you can use the hooks in any child compon
 ```jsx
 import React from "react";
 import { createCache, createClient, objectHash } from "@micro-graphql/core";
-import { TinyGraphQLProvider, useQuery } from "@micro-graphql/hooks";
+import { MicroGraphQLProvider, useQuery } from "@micro-graphql/hooks";
 
 const microClient = createClient({
   fetch,
@@ -147,9 +147,9 @@ const Home = () => {
 };
 
 const App = () => (
-  <TinyGraphQLProvider client={microClient}>
+  <MicroGraphQLProvider client={microClient}>
     <Home />
-  </TinyGraphQLProvider>
+  </MicroGraphQLProvider>
 );
 
 export default App;

@@ -4,10 +4,10 @@ import {
 	createCache,
 	createClient,
 	objectHash,
-	ITinyGraphQLClient
+	IMicroGraphQLClient
 } from '@micro-graphql/core';
 
-export function newClient(): ITinyGraphQLClient {
+export function newClient(): IMicroGraphQLClient {
 	const client = createClient({
 		ssr: typeof window === 'undefined',
 		fetch,

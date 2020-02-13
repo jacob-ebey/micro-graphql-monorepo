@@ -15,10 +15,10 @@ import {
 	createCache,
 	createClient,
 	objectHash,
-	ITinyGraphQLClient
+	IMicroGraphQLClient
 } from '@micro-graphql/core';
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-import { TinyGraphQLProvider } from '@micro-graphql/hooks';
+import { MicroGraphQLProvider } from '@micro-graphql/hooks';
 import MyApp from './_app';
 
 class MyDocument extends Document {

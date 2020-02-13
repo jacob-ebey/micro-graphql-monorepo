@@ -1,11 +1,11 @@
 import * as React from 'react';
 
 import {
-	ITinyGraphQLSubscriptionOptions
+	IMicroGraphQLSubscriptionOptions
 } from '@micro-graphql/core';
 
 import {
-	TinyGraphQLContext,
+	MicroGraphQLContext,
 	IUseQueryResult
 } from './context';
 
@@ -17,9 +17,9 @@ export type UseMutationResult<TData, TQueryVariables> = [
 ];
 
 export function useMutation<TData, TQueryVariables>(
-	options: ITinyGraphQLSubscriptionOptions<TQueryVariables>
+	options: IMicroGraphQLSubscriptionOptions<TQueryVariables>
 ): UseMutationResult<TData, TQueryVariables> {
-	const { requestQuery } = React.useContext(TinyGraphQLContext);
+	const { requestQuery } = React.useContext(MicroGraphQLContext);
 
 	const resultOptions = React.useMemo<IUseQueryOptions<TQueryVariables>>(() => ({
 		query: options.query,

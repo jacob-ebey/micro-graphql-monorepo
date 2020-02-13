@@ -6,10 +6,10 @@ import {
 	createCache,
 	createClient,
 	objectHash,
-	ITinyGraphQLClient
+	IMicroGraphQLClient
 } from '@micro-graphql/core';
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-import { TinyGraphQLProvider } from '@micro-graphql/hooks';
+import { MicroGraphQLProvider } from '@micro-graphql/hooks';
 
 export default function withMicroGraphQL<TProps extends {}>(
 	// eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -25,7 +25,7 @@ export default function withMicroGraphQL<TProps extends {}>(
 	});
 
 	const res: NextPage<TProps & {
-		graphqlClient?: ITinyGraphQLClient;
+		graphqlClient?: IMicroGraphQLClient;
 		graphqlData?: string;
 	}> = ({ graphqlClient, graphqlData, ...props }) => {
 		if (graphqlData) {
@@ -33,10 +33,10 @@ export default function withMicroGraphQL<TProps extends {}>(
 		}
 
 		return (
-			<TinyGraphQLProvider client={graphqlClient || client}>
+			<MicroGraphQLProvider client={graphqlClient || client}>
 				{/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
 				<Component {...props as any} />
-			</TinyGraphQLProvider>
+			</MicroGraphQLProvider>
 		);
 	};
 

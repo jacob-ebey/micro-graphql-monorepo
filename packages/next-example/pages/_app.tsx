@@ -1,14 +1,14 @@
 import * as React from 'react';
 import { AppProps } from 'next/app';
 
-import { ITinyGraphQLClient } from '@micro-graphql/core';
+import { IMicroGraphQLClient } from '@micro-graphql/core';
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-import { TinyGraphQLProvider } from '@micro-graphql/hooks';
+import { MicroGraphQLProvider } from '@micro-graphql/hooks';
 
 import { newClient } from '../graphql/client';
 
 export interface IMyAppProps extends AppProps {
-	microClient?: ITinyGraphQLClient;
+	microClient?: IMicroGraphQLClient;
 	microInitialData?: string;
 }
 
@@ -26,9 +26,9 @@ const MyApp: React.FC<IMyAppProps> = ({
 	}
 
 	return (
-		<TinyGraphQLProvider client={client}>
+		<MicroGraphQLProvider client={client}>
 			<Component {...pageProps} />
-		</TinyGraphQLProvider>
+		</MicroGraphQLProvider>
 	);
 };
 

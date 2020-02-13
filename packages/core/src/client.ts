@@ -1,54 +1,54 @@
 /* eslint-disable import/extensions */
 
-import { ITinyGraphQLCache } from './cache';
+import { IMicroGraphQLCache } from './cache';
 import { ObjectHasher } from './hash';
 
-export interface ITinyGraphQLConfig {
-	cache: ITinyGraphQLCache;
+export interface IMicroGraphQLConfig {
+	cache: IMicroGraphQLCache;
 	url: string;
 	ssr?: boolean;
 	fetch(input: RequestInfo, init?: RequestInit | undefined): Promise<Response>;
 	hash: ObjectHasher;
 }
 
-export interface ITinyGraphQLError {
+export interface IMicroGraphQLError {
 	message: string;
 	path?: ReadonlyArray<string | number>;
 	extensions?: { [key: string]: unknown };
 }
 
-export interface ITinyGraphQLResult<TData> {
+export interface IMicroGraphQLResult<TData> {
 	loading: boolean;
 	data?: TData;
-	errors?: ITinyGraphQLError[];
+	errors?: IMicroGraphQLError[];
 }
 
-export interface ITinyGraphQLQueryOptions<TQueryVariables> {
+export interface IMicroGraphQLQueryOptions<TQueryVariables> {
 	skipCache?: boolean;
 	variables?: TQueryVariables;
 }
 
-export interface ITinyGraphQLSubscriptionOptions<TQueryVariables = unknown>
-	extends ITinyGraphQLQueryOptions<TQueryVariables> {
+export interface IMicroGraphQLSubscriptionOptions<TQueryVariables = unknown>
+	extends IMicroGraphQLQueryOptions<TQueryVariables> {
 	query: string;
 }
 
-export interface ITinyGraphQLClient {
-	cache?: ITinyGraphQLCache;
+export interface IMicroGraphQLClient {
+	cache?: IMicroGraphQLCache;
 	hash: ObjectHasher;
 	ssr?: boolean;
 	query<TData, TQueryVariables>(
 		query: string,
-		options?: ITinyGraphQLQueryOptions<TQueryVariables>
-	): Promise<ITinyGraphQLResult<TData>>;
+		options?: IMicroGraphQLQueryOptions<TQueryVariables>
+	): Promise<IMicroGraphQLResult<TData>>;
 	subscribe: <TData, TQueryVariables>(
-		options: ITinyGraphQLSubscriptionOptions<TQueryVariables>,
-		subscription: (data: ITinyGraphQLResult<TData>) => void
+		options: IMicroGraphQLSubscriptionOptions<TQueryVariables>,
+		subscription: (data: IMicroGraphQLResult<TData>) => void
 	) => () => void;
 	resolveQueries(): Promise<void>;
 }
 
-export class TinyGraphQLKeyError extends Error {}
+export class MicroGraphQLKeyError extends Error {}
 
 export const queryKeyError = 'error creating a unique key for the query';
 
@@ -58,11 +58,11 @@ export function createClient({
 	ssr,
 	fetch,
 	hash
-}: ITinyGraphQLConfig): ITinyGraphQLClient {
+}: IMicroGraphQLConfig): IMicroGraphQLClient {
 	// eslint-disable-next-line @typescript-eslint/no-explicit-any
-	const subscriptions = new Map<string, Array<(data: ITinyGraphQLResult<any> & {}) => void>>();
+	const subscriptions = new Map<string, Array<(data: IMicroGraphQLResult<any> & {}) => void>>();
 
-	const queries: { [key: string]: Promise<ITinyGraphQLResult<unknown>> } = {};
+	const queries: { [key: string]: Promise<IMicroGraphQLResult<unknown>> } = {};
 
 	return {
 		cache,
@@ -72,13 +72,13 @@ export function createClient({
 			await Promise.all(Object.getOwnPropertyNames(queries).map(key => queries[key]));
 		},
 		subscribe: <TData, TQueryVariables>(
-			options: ITinyGraphQLSubscriptionOptions<TQueryVariables>,
-			subscription: (data: ITinyGraphQLResult<TData>) => void
+			options: IMicroGraphQLSubscriptionOptions<TQueryVariables>,
+			subscription: (data: IMicroGraphQLResult<TData>) => void
 		): (() => void) => {
 			const key = hash({ query: options.query, variables: options.variables });
 
 			if (!key) {
-				throw new TinyGraphQLKeyError(queryKeyError);
+				throw new MicroGraphQLKeyError(queryKeyError);
 			}
 
 			const cached = cache.tryGet<TData>(key);
@@ -103,15 +103,15 @@ export function createClient({
 		},
 		query: async <TData, TQueryVariables = unknown>(
 			query: string,
-			options?: ITinyGraphQLQueryOptions<TQueryVariables>
-		): Promise<ITinyGraphQLResult<TData>> => {
+			options?: IMicroGraphQLQueryOptions<TQueryVariables>
+		): Promise<IMicroGraphQLResult<TData>> => {
 			const key = hash({ query, variables: options && options.variables });
 
 			if (!key) {
-				throw new TinyGraphQLKeyError(queryKeyError);
+				throw new MicroGraphQLKeyError(queryKeyError);
 			}
 
-			const { skipCache }: ITinyGraphQLQueryOptions<TQueryVariables> = {
+			const { skipCache }: IMicroGraphQLQueryOptions<TQueryVariables> = {
 				skipCache: false,
 				...options
 			};
@@ -133,7 +133,7 @@ export function createClient({
 				}));
 			}
 
-			const resultPromise = (async (): Promise<ITinyGraphQLResult<TData>> => {
+			const resultPromise = (async (): Promise<IMicroGraphQLResult<TData>> => {
 				const response = await fetch(url, {
 					method: 'post',
 					headers: {
@@ -145,7 +145,7 @@ export function createClient({
 					})
 				});
 
-				const json = (await response.json()) as ITinyGraphQLResult<TData>;
+				const json = (await response.json()) as IMicroGraphQLResult<TData>;
 
 				if (json.data) {
 					cache.trySet<TData>(key, json.data);

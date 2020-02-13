@@ -6,21 +6,21 @@ import 'jest-fetch-mock';
 import {
 	createCache,
 	createClient,
-	ITinyGraphQLClient,
-	ITinyGraphQLResult,
+	IMicroGraphQLClient,
+	IMicroGraphQLResult,
 	queryKeyError,
 	objectHash
 } from '@micro-graphql/core';
 
 import {
 	// eslint-disable-next-line @typescript-eslint/no-unused-vars
-	TinyGraphQLProvider,
+	MicroGraphQLProvider,
 	useQuery,
 	useClient,
-	TinyGraphQLContext,
+	MicroGraphQLContext,
 	noClientError,
 	IUseQueryResult,
-	ITinyGraphQLContextValue
+	IMicroGraphQLContextValue
 } from '../src';
 
 describe('use-query', () => {
@@ -40,7 +40,7 @@ describe('use-query', () => {
 		};
 	}
 
-	const validateResult = (result?: ITinyGraphQLResult<IQueryResult>): void => {
+	const validateResult = (result?: IMicroGraphQLResult<IQueryResult>): void => {
 		expect(result).toBeTruthy();
 		expect(result!.data).toBeTruthy();
 		expect(result!.data!.film).toBeTruthy();
@@ -49,8 +49,8 @@ describe('use-query', () => {
 
 	// eslint-disable-next-line @typescript-eslint/no-explicit-any
 	let options: any;
-	let client: ITinyGraphQLClient;
-	let wrapper: (provided?: ITinyGraphQLClient) => React.FC;
+	let client: IMicroGraphQLClient;
+	let wrapper: (provided?: IMicroGraphQLClient) => React.FC;
 
 	beforeEach(() => {
 		global.fetch.resetMocks();
@@ -65,10 +65,10 @@ describe('use-query', () => {
 			cache: createCache()
 		};
 		client = createClient(options);
-		wrapper = (provided?: ITinyGraphQLClient) => ({
+		wrapper = (provided?: IMicroGraphQLClient) => ({
 			children
 		}: React.PropsWithChildren<{}>): React.ReactElement => (
-			<TinyGraphQLProvider client={provided || client}>{children}</TinyGraphQLProvider>
+			<MicroGraphQLProvider client={provided || client}>{children}</MicroGraphQLProvider>
 		);
 	});
 

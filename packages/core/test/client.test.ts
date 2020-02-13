@@ -4,10 +4,10 @@ import 'jest-fetch-mock';
 import {
 	createCache,
 	createClient,
-	ITinyGraphQLResult,
+	IMicroGraphQLResult,
 	objectHash,
 	queryKeyError,
-	ITinyGraphQLCacheResult
+	IMicroGraphQLCacheResult
 } from '../src';
 
 describe('client', () => {
@@ -27,7 +27,7 @@ describe('client', () => {
 		};
 	}
 
-	const validateResult = (result?: ITinyGraphQLResult<IQueryResult>): void => {
+	const validateResult = (result?: IMicroGraphQLResult<IQueryResult>): void => {
 		expect(result).toBeTruthy();
 		expect(result!.data).toBeTruthy();
 		expect(result!.data!.film).toBeTruthy();
@@ -71,7 +71,7 @@ describe('client', () => {
 		const client = createClient({
 			...options,
 			cache: {
-				tryGet: <TValue>(): ITinyGraphQLCacheResult<TValue> => ({
+				tryGet: <TValue>(): IMicroGraphQLCacheResult<TValue> => ({
 					success: true,
 					data: cached
 				}),
@@ -95,7 +95,7 @@ describe('client', () => {
 		const client = createClient({
 			...options,
 			cache: {
-				tryGet: <TValue>(): ITinyGraphQLCacheResult<TValue> => ({
+				tryGet: <TValue>(): IMicroGraphQLCacheResult<TValue> => ({
 					success: true,
 					data: cached
 				}),
@@ -211,7 +211,7 @@ describe('client', () => {
 		});
 
 		let subscriptionCount = 0;
-		let dataFromSubscription: ITinyGraphQLResult<IQueryResult>;
+		let dataFromSubscription: IMicroGraphQLResult<IQueryResult>;
 		const unsubscribe = client.subscribe<IQueryResult, unknown>(
 			{ query, variables },
 			data => {
