@@ -29,6 +29,8 @@ jobs:
         with:
           node-version: 12
           registry-url: https://registry.npmjs.org/
+        env:
+          NODE_AUTH_TOKEN: ${{secrets.NODE_AUTH_TOKEN}}
       - name: Deploy core
         run: (cd packages/core && npm publish --access public)
         env:
