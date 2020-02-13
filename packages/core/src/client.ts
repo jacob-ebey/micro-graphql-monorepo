@@ -82,7 +82,7 @@ export function createClient({
 			}
 
 			const cached = cache.tryGet<TData>(key);
-			if (cached && cached.success) {
+			if (cached.success) {
 				subscription({
 					loading: false,
 					data: cached.data
