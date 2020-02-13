@@ -27,14 +27,14 @@ jobs:
     - name: Deploy core
       run: >
         PACKAGE_VERSION = echo $REF | grep ":v([0-9]\.?)*"
-        (cd packages/core && yarn publish --access public --version ${PACKAGE_VERSION})
+        (cd packages/core && yarn publish --access public --version $PACKAGE_VERSION)
       env:
         NODE_AUTH_TOKEN: ${{secrets.NPM_TOKEN}}
         REF: ${{github.ref}}
     - name: Deploy hooks
       run: >
         PACKAGE_VERSION = echo $REF | grep ":v([0-9]\.?)*"
-        (cd packages/hooks && yarn publish --access public --version ${PACKAGE_VERSION})
+        (cd packages/hooks && yarn publish --access public --version $PACKAGE_VERSION)
       env:
         NODE_AUTH_TOKEN: ${{secrets.NPM_TOKEN}}
         REF: ${{github.ref}}
