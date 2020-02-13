@@ -2,6 +2,9 @@
 node_modules
 yarn-error.log
 
+.npmrc
+.yarnrc
+
 # build output
 coverage
 lib
