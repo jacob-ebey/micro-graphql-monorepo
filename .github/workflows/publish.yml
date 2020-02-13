@@ -3,6 +3,8 @@ name: Publish CI
 on:
   release:
     types: [created]
+    tags:        
+      - v*
 
 jobs:
   build-and-publish:
@@ -23,10 +25,16 @@ jobs:
     - run: yarn
     - run: yarn build:lib
     - name: Deploy core
-      run: (cd packages/core && npm version patch && npm publish --access public)
+      run: >
+        PACKAGE_VERSION = echo $REF | grep ":v([0-9]\.?)*"
+        (cd packages/core && yarn publish --access public --version ${PACKAGE_VERSION:1})
       env:
         NODE_AUTH_TOKEN: ${{secrets.NPM_TOKEN}}
+        REF: ${{github.ref}}
     - name: Deploy hooks
-      run: (cd packages/hooks && npm version patch && npm publish --access public)
+      run: >
+        PACKAGE_VERSION = echo $REF | grep ":v([0-9]\.?)*"
+        (cd packages/hooks && yarn publish --access public --version ${PACKAGE_VERSION:1})
       env:
         NODE_AUTH_TOKEN: ${{secrets.NPM_TOKEN}}
+        REF: ${{github.ref}}
