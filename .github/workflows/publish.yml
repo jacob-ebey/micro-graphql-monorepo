@@ -17,17 +17,14 @@ jobs:
       uses: actions/setup-node@v1
       with:
         node-version: ${{ matrix.node-version }}
-    - run: echo $NODE_AUTH_TOKEN >> .npmrc && echo echo $NODE_AUTH_TOKEN >> .yarnrc
-      env:
-        NODE_AUTH_TOKEN: ${{secrets.NODE_AUTH_TOKEN}}
     - run: yarn
     - run: yarn build:lib
     - run: git config --global user.email "jacob.ebey@live.com" && git config --global user.name "CI Bot"
     - run: cp ./.yarnrc packages/core && cp ./.npmrc packages/core
     - name: Publish packages
-      run: ./node_modules/.bin/lerna publish from-git --yes
+      run: ./node_modules/.bin/lerna publish from-git --yes --registry https://registry.npmjs.org/:_authToken=${NODE_AUTH_TOKEN}
       env:
-        NODE_AUTH_TOKEN: ${{secrets.NPM_TOKEN}}
+        NODE_AUTH_TOKEN: ${{ secrets.NODE_AUTH_TOKEN }}
     # - name: Deploy core
     #   run: (cd packages/core && yarn publish --access public --new-version $(echo $REF | egrep -o "([0-9]{1,}\.)+[0-9]{1,}(-[0-9a-z]+)?"))
     #   env:

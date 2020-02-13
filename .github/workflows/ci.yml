@@ -15,9 +15,6 @@ jobs:
       uses: actions/setup-node@v1
       with:
         node-version: ${{ matrix.node-version }}
-    - run: echo $NODE_AUTH_TOKEN >> .npmrc && echo echo $NODE_AUTH_TOKEN >> .yarnrc
-      env:
-        NODE_AUTH_TOKEN: ${{secrets.NODE_AUTH_TOKEN}}
     - run: yarn
     - run: yarn build
     - run: yarn ci
