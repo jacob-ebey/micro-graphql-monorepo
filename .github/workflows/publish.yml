@@ -21,7 +21,7 @@ jobs:
     - run: yarn build:lib
     - run: git config --global user.email "jacob.ebey@live.com" && git config --global user.name "CI Bot"
     - name: Publish packages
-      run: ./node_modules/.bin/lerna publish from-git --yes --registry //registry.npmjs.org/:_authToken=${NODE_AUTH_TOKEN}
+      run: echo "//registry.npmjs.org/:_authToken=${NODE_AUTH_TOKEN}" > .npmrc && ./node_modules/.bin/lerna publish from-git --yes --no-git-reset
       env:
         NODE_AUTH_TOKEN: ${{ secrets.NODE_AUTH_TOKEN }}
     # - name: Deploy core
