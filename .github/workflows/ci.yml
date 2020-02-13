@@ -19,7 +19,11 @@ jobs:
       env:
         NODE_AUTH_TOKEN: ${{secrets.NODE_AUTH_TOKEN}}
     - run: yarn build
+      env:
+        NODE_AUTH_TOKEN: ${{secrets.NODE_AUTH_TOKEN}}
     - run: yarn ci
+      env:
+        NODE_AUTH_TOKEN: ${{secrets.NODE_AUTH_TOKEN}}
     - uses: codecov/codecov-action@v1
       with:
         token: ${{ secrets.CODECOV_TOKEN }}
