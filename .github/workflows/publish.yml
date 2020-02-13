@@ -20,7 +20,6 @@ jobs:
     - run: yarn
     - run: yarn build:lib
     - run: git config --global user.email "jacob.ebey@live.com" && git config --global user.name "CI Bot"
-    - run: cp ./.yarnrc packages/core && cp ./.npmrc packages/core
     - name: Publish packages
       run: ./node_modules/.bin/lerna publish from-git --yes --registry https://registry.npmjs.org/:_authToken=${NODE_AUTH_TOKEN}
       env:
