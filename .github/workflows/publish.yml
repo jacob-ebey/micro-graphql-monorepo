@@ -27,12 +27,12 @@ jobs:
     - run: git config --global user.email "jacob.ebey@live.com" && git config --global user.name "CI Bot"
     - run: cp ./.yarnrc packages/core && cp ./.npmrc packages/core
     - name: Deploy core
-      run: (cd packages/core && yarn publish --access public --new-version $(echo $REF | egrep -o "([0-9]{1,}\.)+[0-9]{1,}(-[0-9a-z]+)"))
+      run: (cd packages/core && yarn publish --access public --new-version $(echo $REF | egrep -o "([0-9]{1,}\.)+[0-9]{1,}(-[0-9a-z]+)?"))
       env:
         NODE_AUTH_TOKEN: ${{secrets.NPM_TOKEN}}
         REF: ${{github.ref}}
     - name: Deploy hooks
-      run: (cd packages/hooks && yarn publish --access public --new-version $(echo $REF | egrep -o "([0-9]{1,}\.)+[0-9]{1,}(-[0-9a-z]+)"))
+      run: (cd packages/hooks && yarn publish --access public --new-version $(echo $REF | egrep -o "([0-9]{1,}\.)+[0-9]{1,}(-[0-9a-z]+)?"))
       env:
         NODE_AUTH_TOKEN: ${{secrets.NPM_TOKEN}}
         REF: ${{github.ref}}
