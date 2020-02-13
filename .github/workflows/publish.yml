@@ -17,12 +17,17 @@ jobs:
       uses: actions/setup-node@v1
       with:
         node-version: ${{ matrix.node-version }}
-    - run: yarn
-    - run: yarn build:lib
-    - run: |
-        git config --global user.email "jacob.ebey@live.com"
-        git config --global user.name "CI Bot"
-    - name: Authenticate with Registry
+    - name: Configure CI Git User
+      run: |
+        git config --global user.name '@bennypowers'
+        git config --global user.email 'bennypowers@users.noreply.github.com'
+        git remote set-url origin https://$GITHUB_ACTOR:$GITHUB_PAT@github.com/bennypowers/apollo-elements
+      env:
+        GITHUB_PAT: ${{ secrets.GITHUB_PAT }}
+
+    - name: Checkout and pull branch
+      run: git checkout "${GITHUB_REF:11}" && git pull
+    - name: Authenticate with registry
       run: |
         yarn logout
         echo "@micro-graphql:registry=http://registry.npmjs.org/" > .npmrc
@@ -31,10 +36,14 @@ jobs:
         npm whoami
       env:
         NODE_AUTH_TOKEN: ${{ secrets.NODE_AUTH_TOKEN }}
+    - run: yarn
+    - run: yarn build:lib
     - name: Publish packages
-      run: ./node_modules/.bin/lerna publish from-git --yes --no-git-reset
+      run: lerna publish --yes
       env:
-        NODE_AUTH_TOKEN: ${{ secrets.NODE_AUTH_TOKEN }}
+        GH_TOKEN: ${{ secrets.GITHUB_PAT }}
+        GITHUB_TOKEN: ${{ secrets.GITHUB_PAT }}
+        NPM_TOKEN: ${{ secrets.NODE_AUTH_TOKEN }}
     # - name: Deploy core
     #   run: (cd packages/core && yarn publish --access public --new-version $(echo $REF | egrep -o "([0-9]{1,}\.)+[0-9]{1,}(-[0-9a-z]+)?"))
     #   env:
