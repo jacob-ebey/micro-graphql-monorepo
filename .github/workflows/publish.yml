@@ -19,9 +19,20 @@ jobs:
         node-version: ${{ matrix.node-version }}
     - run: yarn
     - run: yarn build:lib
-    - run: git config --global user.email "jacob.ebey@live.com" && git config --global user.name "CI Bot"
+    - run: |
+        git config --global user.email "jacob.ebey@live.com"
+        git config --global user.name "CI Bot"
+    - name: Authenticate with Registry
+      run: |
+        yarn logout
+        echo @micro-graphql:registry=http://registry.npmjs.org/" > .npmrc
+        echo "registry=http://registry.npmjs.org/" >> .npmrc
+        echo "//registry.npmjs.org/:_authToken=$NODE_AUTH_TOKEN" >> .npmrc
+        npm whoami
+      env:
+        NODE_AUTH_TOKEN: ${{ secrets.NODE_AUTH_TOKEN }}
     - name: Publish packages
-      run: echo "//registry.npmjs.org/:_authToken=${NODE_AUTH_TOKEN}" > .npmrc && ./node_modules/.bin/lerna publish from-git --yes --no-git-reset
+      run: ./node_modules/.bin/lerna publish from-git --yes --no-git-reset
       env:
         NODE_AUTH_TOKEN: ${{ secrets.NODE_AUTH_TOKEN }}
     # - name: Deploy core
