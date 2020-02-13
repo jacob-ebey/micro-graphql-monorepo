@@ -25,7 +25,7 @@ jobs:
     - name: Authenticate with Registry
       run: |
         yarn logout
-        echo @micro-graphql:registry=http://registry.npmjs.org/" > .npmrc
+        echo "@micro-graphql:registry=http://registry.npmjs.org/" > .npmrc
         echo "registry=http://registry.npmjs.org/" >> .npmrc
         echo "//registry.npmjs.org/:_authToken=$NODE_AUTH_TOKEN" >> .npmrc
         npm whoami
