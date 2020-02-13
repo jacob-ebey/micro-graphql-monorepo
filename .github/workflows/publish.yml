@@ -1,0 +1,46 @@
+name: Node.js CI
+
+on:
+  release:
+    types: [created]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version: [10.x, 12.x]
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: Use node.js ${{ matrix.node-version }}
+      uses: actions/setup-node@v1
+      with:
+        node-version: ${{ matrix.node-version }}
+    - run: yarn
+    - run: yarn build
+    - uses: codecov/codecov-action@v1
+      with:
+        token: ${{ secrets.CODECOV_TOKEN }}
+        file: ./coverage/clover.xml
+        flags: unittests
+        fail_ci_if_error: true
+
+  publish-npm:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-node@v1
+        with:
+          node-version: 12
+          registry-url: https://registry.npmjs.org/
+      - run: npm ci
+      - name: Deploy core
+        run: (cd packages/core && npm publish)
+        env:
+          NODE_AUTH_TOKEN: ${{secrets.npm_token}}
+      - name: Deploy hooks
+        run: (cd packages/hooks && npm publish)
+        env:
+          NODE_AUTH_TOKEN: ${{secrets.npm_token}}

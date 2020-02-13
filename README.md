@@ -1,0 +1,1 @@
+# Micro GraphQL [![codecov](https://codecov.io/gh/jacob-ebey/micro-graphql-monorepo/branch/master/graph/badge.svg)](https://codecov.io/gh/jacob-ebey/micro-graphql-monorepo)
