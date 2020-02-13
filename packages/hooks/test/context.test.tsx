@@ -1,0 +1,122 @@
+
+/* eslint-disable import/no-extraneous-dependencies */
+import * as React from 'react';
+import { renderHook } from '@testing-library/react-hooks';
+import 'jest-fetch-mock';
+
+import {
+	createCache,
+	createClient,
+	ITinyGraphQLClient,
+	queryKeyError,
+	objectHash
+} from '@micro-graphql/core';
+
+import {
+	// eslint-disable-next-line @typescript-eslint/no-unused-vars
+	TinyGraphQLProvider,
+	useQuery,
+	useClient,
+	TinyGraphQLContext,
+	noClientError,
+	IUseQueryResult,
+	ITinyGraphQLContextValue
+} from '../src';
+
+describe('context', () => {
+	const query = `
+		query TestQuery($id: ID) {
+			film(filmID: $id) {
+				title
+			}
+		}
+	`;
+
+	const variables = { id: 1 };
+
+	interface IQueryResult {
+		film: {
+			title: string;
+		};
+	}
+
+	// eslint-disable-next-line @typescript-eslint/no-explicit-any
+	let options: any;
+	let client: ITinyGraphQLClient;
+	let wrapper: (provided?: ITinyGraphQLClient) => React.FC;
+
+	beforeEach(() => {
+		global.fetch.resetMocks();
+		global.fetch.mockResponse(`
+			{"data":{"film":{"title":"A New Hope"}}}
+		`);
+
+		options = {
+			fetch: global.fetch,
+			hash: objectHash,
+			url: 'https://swapi-graphql.netlify.com/.netlify/functions/index',
+			cache: createCache()
+		};
+		client = createClient(options);
+		wrapper = (provided?: ITinyGraphQLClient) => ({
+			children
+		}: React.PropsWithChildren<{}>): React.ReactElement => (
+			<TinyGraphQLProvider client={provided || client}>{children}</TinyGraphQLProvider>
+		);
+	});
+
+	it('context throws errors for defaults', async () => {
+		const { result } = renderHook(
+			() => React.useContext<ITinyGraphQLContextValue>(TinyGraphQLContext)
+		);
+
+		// eslint-disable-next-line @typescript-eslint/no-explicit-any
+		expect(() => result.current.requestQuery({} as any)).toThrow(noClientError);
+		expect(() => result.current.client.hash({})).toThrow(noClientError);
+		// eslint-disable-next-line @typescript-eslint/no-explicit-any
+		expect(() => result.current.client.subscribe({} as any, () => {
+			expect(true).toBe(false);
+		})).toThrow(noClientError);
+
+		let message: string | null = null;
+		try {
+			await result.current.client.query('');
+		} catch (err) {
+			message = err.message;
+		}
+		expect(message).toBe(noClientError);
+
+		try {
+			await result.current.client.resolveQueries();
+		} catch (err) {
+			message = err.message;
+		}
+		expect(message).toBe(noClientError);
+	});
+
+	it('can use client', () => {
+		const { result } = renderHook(() => useClient(), { wrapper: wrapper() });
+
+		expect(result.current).toBe(client);
+	});
+
+	it('throws for no key', () => {
+		renderHook(() => {
+			expect(() => {
+				const { requestQuery } = React.useContext(TinyGraphQLContext);
+				requestQuery({
+					query,
+					variables
+				});
+			}).toThrow(queryKeyError);
+		},
+		{
+			wrapper: wrapper(
+				createClient({
+					...options,
+					hash: () => null
+				})
+			)
+		});
+	});
+});

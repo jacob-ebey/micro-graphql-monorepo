@@ -5,6 +5,42 @@
 - **@micro-graphql/core:** ![npm bundle size](https://img.shields.io/bundlephobia/min/@micro-graphql/core?style=flat-square) ![npm bundle size](https://img.shields.io/bundlephobia/minzip/@micro-graphql/core?style=flat-square)
 - **@micro-graphql/hooks:** ![npm bundle size](https://img.shields.io/bundlephobia/min/@micro-graphql/hooks?style=flat-square) ![npm bundle size](https://img.shields.io/bundlephobia/minzip/@micro-graphql/hooks?style=flat-square)
 
+## Overview
+
+### useQuery
+
+```jsx
+const { data, errors, loading } = useQuery(
+  React.useMemo(
+    () => ({
+      query: YOUR_QUERY,
+      variables: {
+        example: variable
+      }
+    }),
+    [variable]
+  )
+);
+```
+
+### useMutation
+
+```jsx
+const [{ data, errors, loading }, mutate] = useMutation(
+  React.useMemo(
+    () => ({
+      query: YOUR_MUTATION,
+      variables: {
+        example: variable
+      }
+    }),
+    [variable]
+  )
+);
+
+return <button onClick={mutate}>Run mutation</button>;
+```
+
 ## Full examples
 
 - NEXT.JS with SSR and hydration [EXAMPLE](https://github.com/jacob-ebey/micro-graphql-monorepo/tree/master/packages/next-example)

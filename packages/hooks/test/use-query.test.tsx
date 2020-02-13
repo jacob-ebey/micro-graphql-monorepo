@@ -1,7 +1,7 @@
 /* eslint-disable import/no-extraneous-dependencies */
 import * as React from 'react';
 import { renderHook } from '@testing-library/react-hooks';
-import * as fetch from 'isomorphic-fetch';
+import 'jest-fetch-mock';
 
 import {
 	createCache,
@@ -53,8 +53,13 @@ describe('use-query', () => {
 	let wrapper: (provided?: ITinyGraphQLClient) => React.FC;
 
 	beforeEach(() => {
+		global.fetch.resetMocks();
+		global.fetch.mockResponse(`
+			{"data":{"film":{"title":"A New Hope"}}}
+		`);
+
 		options = {
-			fetch,
+			fetch: global.fetch,
 			hash: objectHash,
 			url: 'https://swapi-graphql.netlify.com/.netlify/functions/index',
 			cache: createCache()
@@ -65,41 +70,6 @@ describe('use-query', () => {
 		}: React.PropsWithChildren<{}>): React.ReactElement => (
 			<TinyGraphQLProvider client={provided || client}>{children}</TinyGraphQLProvider>
 		);
-	});
-
-	it('context throws errors for defaults', async () => {
-		const { result } = renderHook(
-			() => React.useContext<ITinyGraphQLContextValue>(TinyGraphQLContext)
-		);
-
-		// eslint-disable-next-line @typescript-eslint/no-explicit-any
-		expect(() => result.current.requestQuery({} as any)).toThrow(noClientError);
-		expect(() => result.current.client.hash({})).toThrow(noClientError);
-		// eslint-disable-next-line @typescript-eslint/no-explicit-any
-		expect(() => result.current.client.subscribe({} as any, () => {
-			expect(true).toBe(false);
-		})).toThrow(noClientError);
-
-		let message: string | null = null;
-		try {
-			await result.current.client.query('');
-		} catch (err) {
-			message = err.message;
-		}
-		expect(message).toBe(noClientError);
-
-		try {
-			await result.current.client.resolveQueries();
-		} catch (err) {
-			message = err.message;
-		}
-		expect(message).toBe(noClientError);
-	});
-
-	it('can use client', () => {
-		const { result } = renderHook(() => useClient(), { wrapper: wrapper() });
-
-		expect(result.current).toBe(client);
 	});
 
 	it('can skip query', async () => {

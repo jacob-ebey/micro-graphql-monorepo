@@ -41,14 +41,12 @@ export function useQuery<TData, TQueryVariables>(
 		() => client.subscribe<TData, TQueryVariables>(
 			subscriptionOptions,
 			(result: IUseQueryResult<TData>) => {
-				if (resultRef.current !== result) {
-					resultRef.current = {
-						...resultRef.current,
-						...result
-					};
-					if (!firstRender.current && !client.ssr) {
-						forceUpdate();
-					}
+				resultRef.current = {
+					...resultRef.current,
+					...result
+				};
+				if (!firstRender.current && !client.ssr) {
+					forceUpdate();
 				}
 				firstRender.current = false;
 			}

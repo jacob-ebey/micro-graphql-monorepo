@@ -1,6 +1,5 @@
-/* eslint-disable import/extensions */
 /* eslint-disable import/no-extraneous-dependencies */
-import * as fetch from 'isomorphic-fetch';
+import 'jest-fetch-mock';
 
 import {
 	createCache,
@@ -38,8 +37,13 @@ describe('client', () => {
 	// eslint-disable-next-line @typescript-eslint/no-explicit-any
 	let options: any;
 	beforeEach(() => {
+		global.fetch.resetMocks();
+		global.fetch.mockResponse(`
+			{"data":{"film":{"title":"A New Hope"}}}
+		`);
+
 		options = {
-			fetch,
+			fetch: global.fetch,
 			hash: objectHash,
 			url: 'https://swapi-graphql.netlify.com/.netlify/functions/index',
 			cache: createCache()
@@ -111,6 +115,20 @@ describe('client', () => {
 		});
 		expect(result).toBeTruthy();
 		expect(result.data).toBe(cached);
+	});
+
+	it('skips cache if no data', async () => {
+		global.fetch.resetMocks();
+		global.fetch.mockResponse(`
+			{}
+		`);
+		const client = createClient(options);
+
+		const result = await client.query<IQueryResult, unknown>(query, {
+			variables
+		});
+		expect(result.data).toBeUndefined();
+		expect(client.cache!.tryGet(client.hash({ query, variables }) as string).success).toBe(false);
 	});
 
 	it('can make query', async () => {

@@ -3,6 +3,10 @@
 	"verbose": true,
 	"preset": "ts-jest",
 	"testEnvironment": "node",
+	"automock": false,
+	"setupFiles": [
+    "./setupJest.js"
+  ],
 	"testMatch": [
 		"<rootDir>/packages/*/test/**/*.test.ts",
 		"<rootDir>/packages/*/test/**/*.test.tsx"
