@@ -22,6 +22,7 @@ jobs:
         git config --global user.name '@bennypowers'
         git config --global user.email 'bennypowers@users.noreply.github.com'
         git remote set-url origin https://$GITHUB_ACTOR:$GITHUB_PAT@github.com/bennypowers/apollo-elements
+        git checkout origin/master
       env:
         GITHUB_PAT: ${{ secrets.GITHUB_PAT }}
     - name: Authenticate with registry
