@@ -37,7 +37,10 @@ jobs:
     - run: yarn
     - run: yarn build:lib
     - name: Publish packages
-      run: ./node_modules/.bin/lerna publish --yes
+      run: |
+        ./node_modules/.bin/lerna version patch --yes
+        ./node_modules/.bin/lerna publish --yes
+
       env:
         GH_TOKEN: ${{ secrets.GITHUB_PAT }}
         GITHUB_TOKEN: ${{ secrets.GITHUB_PAT }}
