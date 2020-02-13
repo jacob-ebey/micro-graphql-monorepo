@@ -1,10 +1,9 @@
 name: Publish CI
 
 on:
-  release:
-    types: [created]
-    tags:        
-      - release-*
+  push:
+    branches:        
+      - master
 
 jobs:
   build-and-publish:
