@@ -29,7 +29,6 @@ jobs:
         with:
           node-version: 12
           registry-url: https://registry.npmjs.org/
-      - run: npm ci
       - name: Deploy core
         run: (cd packages/core && npm publish)
         env:
