@@ -26,12 +26,12 @@ jobs:
     - run: yarn build:lib
     - run: cp ./.yarnrc packages/core && cp ./.npmrc packages/core
     - name: Deploy core
-      run: (cd packages/core && npm publish --access public --tag $(echo $REF | egrep -o "([0-9]{1,}\.)+[0-9]{1,}"))
+      run: (cd packages/core && yarn publish --access public --version $(echo $REF | egrep -o "([0-9]{1,}\.)+[0-9]{1,}(-[0-9a-z]+)"))
       env:
         NODE_AUTH_TOKEN: ${{secrets.NPM_TOKEN}}
         REF: ${{github.ref}}
     - name: Deploy hooks
-      run: (cd packages/hooks && npm publish --access public --tag $(echo $REF | egrep -o "([0-9]{1,}\.)+[0-9]{1,}"))
+      run: (cd packages/hooks && yarn publish --access public --version $(echo $REF | egrep -o "([0-9]{1,}\.)+[0-9]{1,}(-[0-9a-z]+)"))
       env:
         NODE_AUTH_TOKEN: ${{secrets.NPM_TOKEN}}
         REF: ${{github.ref}}
