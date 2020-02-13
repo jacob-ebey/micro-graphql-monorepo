@@ -29,11 +29,11 @@ jobs:
         with:
           node-version: 12
           registry-url: https://registry.npmjs.org/
-      - name: Setup NPM
-        run: echo _auth=$NODE_AUTH_TOKEN >> .npmrc
-        env:
-          NODE_AUTH_TOKEN: ${{secrets.NODE_AUTH_TOKEN}}
       - name: Deploy core
         run: (cd packages/core && npm publish --access public)
+        env:
+          NODE_AUTH_TOKEN: ${{secrets.NODE_AUTH_TOKEN}}
       - name: Deploy hooks
         run: (cd packages/hooks && npm publish --access public)
+        env:
+          NODE_AUTH_TOKEN: ${{secrets.NODE_AUTH_TOKEN}}
