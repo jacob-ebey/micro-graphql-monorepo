@@ -25,16 +25,12 @@ jobs:
     - run: yarn
     - run: yarn build:lib
     - name: Deploy core
-      run: >
-        PACKAGE_VERSION = echo $REF | grep ":v([0-9]\.?)*" &&
-        (cd packages/core && yarn publish --access public --version $PACKAGE_VERSION)
+      run: (cd packages/core && yarn publish --access public --version $(echo $REF | egrep -o "([0-9]{1,}\.)+[0-9]{1,}"))
       env:
         NODE_AUTH_TOKEN: ${{secrets.NPM_TOKEN}}
         REF: ${{github.ref}}
     - name: Deploy hooks
-      run: >
-        PACKAGE_VERSION = echo $REF | grep ":v([0-9]\.?)*" &&
-        (cd packages/hooks && yarn publish --access public --version $PACKAGE_VERSION)
+      run: (cd packages/hooks && yarn publish --access public --version $(echo $REF | egrep -o "([0-9]{1,}\.)+[0-9]{1,}"))
       env:
         NODE_AUTH_TOKEN: ${{secrets.NPM_TOKEN}}
         REF: ${{github.ref}}
