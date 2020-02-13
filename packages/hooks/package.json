@@ -1,6 +1,6 @@
 {
   "name": "@micro-graphql/hooks",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "license": "MIT",
   "main": "lib/index.js",
   "typings": "lib/index.d.ts",
@@ -13,7 +13,7 @@
     "react": "^16.8.2"
   },
   "devDependencies": {
-    "@micro-graphql/core": "^0.0.1",
+    "@micro-graphql/core": "^0.0.2",
     "react": "^16.12.0",
     "react-dom": "^16.12.0",
     "typescript": "^3.7.5"
