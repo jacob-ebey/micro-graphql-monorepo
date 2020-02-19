@@ -7,16 +7,16 @@ import FilmOverview from '../components/film-overview';
 import FilmSelector from '../components/film-selector';
 
 const HOME_QUERY = gql`
-	query TestQuery($id: ID) {
-		film(id: $id) {
-			${FilmOverview.fragments.film}
-		}
-		allFilms {
-			films {
-				${FilmSelector.fragments.films}
-			}
-		}
-	}
+  query TestQuery($id: ID) {
+    film(id: $id) {
+      ${FilmOverview.fragments.film}
+    }
+    allFilms {
+      films {
+        ${FilmSelector.fragments.films}
+      }
+    }
+  }
 `;
 
 const Home: React.FC = () => {
@@ -59,7 +59,7 @@ const Home: React.FC = () => {
 				</>
 			)}
 
-			<p>Data</p>
+			{data && <p>Data</p>}
 			{data && data.film ? (
 				<FilmOverview film={data.film} />
 			) : !loading && (

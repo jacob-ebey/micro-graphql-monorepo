@@ -7,6 +7,8 @@
 		"./packages/hooks/**/*.tsx",
 		"./packages/ssr/**/*.ts",
 		"./packages/ssr/**/*.tsx",
+		"./packages/cra-example/**/*.ts",
+		"./packages/cra-example/**/*.tsx",
 		"./packages/next-example/**/*.ts",
 		"./packages/next-example/**/*.tsx"
 	],

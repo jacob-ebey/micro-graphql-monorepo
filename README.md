@@ -46,7 +46,7 @@ return <button onClick={mutate}>Run mutation</button>;
 ## Full examples
 
 - NEXT.js with SSR and hydration [EXAMPLE](https://github.com/jacob-ebey/micro-graphql-monorepo/tree/master/packages/next-example)
-- Create React App [EXAMPLE](https://codesandbox.io/s/github/jacob-ebey/micro-graphql-cra-example/tree/master/)
+- Create React App [EXAMPLE](https://github.com/jacob-ebey/micro-graphql-monorepo/tree/master/packages/cra-example), [PLAYGROUND](https://codesandbox.io/s/github/jacob-ebey/micro-graphql-cra-example/tree/master/)
 
 ## React quickstart
 
@@ -60,7 +60,7 @@ Wrap your app in a client provider and you can use the hooks in any child compon
 
 ```jsx
 import React from "react";
-import { createCache, createClient, objectHash } from "@micro-graphql/core";
+import { createCache, createClient, objectHash, gql } from "@micro-graphql/core";
 import { MicroGraphQLProvider, useQuery } from "@micro-graphql/hooks";
 
 const microClient = createClient({
@@ -69,6 +69,21 @@ const microClient = createClient({
   hash: objectHash,
   url: "https://swapi-graphql.netlify.com/.netlify/functions/index"
 });
+
+const HOME_QUERY = gql`
+  query TestQuery($id: ID) {
+    film(id: $id) {
+      id
+      title
+    }
+    allFilms {
+      films {
+        id
+        title
+      }
+    }
+  }
+`;
 
 const Home = () => {
   const [episodeId, setEpisodeId] = React.useState("ZmlsbXM6MQ==");
@@ -83,20 +98,7 @@ const Home = () => {
   const { data, errors, loading } = useQuery(
     React.useMemo(
       () => ({
-        query: `
-          query TestQuery($id: ID) {
-            film(id: $id) {
-              id
-              title
-            }
-            allFilms {
-              films {
-                id
-                title
-              }
-            }
-          }
-        `,
+        query: HOME_QUERY,
         variables: {
           id: episodeId
         }

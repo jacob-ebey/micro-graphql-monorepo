@@ -16,11 +16,7 @@ import {
 	// eslint-disable-next-line @typescript-eslint/no-unused-vars
 	MicroGraphQLProvider,
 	useQuery,
-	useClient,
-	MicroGraphQLContext,
-	noClientError,
-	IUseQueryResult,
-	IMicroGraphQLContextValue
+	IUseQueryResult
 } from '../src';
 
 describe('use-query', () => {

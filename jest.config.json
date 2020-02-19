@@ -8,12 +8,16 @@
     "./setupJest.js"
   ],
 	"testMatch": [
-		"<rootDir>/packages/*/test/**/*.test.ts",
-		"<rootDir>/packages/*/test/**/*.test.tsx"
+		"<rootDir>/packages/core/test/**/*.test.ts",
+		"<rootDir>/packages/core/test/**/*.test.tsx",
+		"<rootDir>/packages/hooks/test/**/*.test.ts",
+		"<rootDir>/packages/hooks/test/**/*.test.tsx"
 	],
 	"collectCoverageFrom": [
-		"<rootDir>/packages/*/src/**/*.ts",
-		"<rootDir>/packages/*/src/**/*.tsx"
+		"<rootDir>/packages/core/src/**/*.ts",
+		"<rootDir>/packages/core/src/**/*.tsx",
+		"<rootDir>/packages/hooks/src/**/*.ts",
+		"<rootDir>/packages/hooks/src/**/*.tsx"
 	],
 	"watchPathIgnorePatterns": [
 		"/node_modules/"
