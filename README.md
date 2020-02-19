@@ -158,3 +158,14 @@ const App = () => (
 
 export default App;
 ```
+
+## Contributors
+
+The release process is currently manual and is done in three steps:
+
+- Build packages:
+  ```yarn build:lib```
+- Version the packages:
+  ```yarn ver```
+- In the `core` and `hooks` packages, use npm to publish the new versions:
+  ```npm publish```
