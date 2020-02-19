@@ -7,8 +7,8 @@ import {
 	createCache,
 	createClient,
 	IMicroGraphQLClient,
+	IMicroGraphQLConfig,
 	IMicroGraphQLResult,
-	queryKeyError,
 	objectHash
 } from '@micro-graphql/core';
 
@@ -43,7 +43,7 @@ describe('use-mutation', () => {
 		expect(result!.data!.film.title).toBe('A New Hope');
 	};
 
-	let options: any;
+	let options: IMicroGraphQLConfig;
 	let client: IMicroGraphQLClient;
 	let wrapper: (provided?: IMicroGraphQLClient) => React.FC;
 
@@ -81,7 +81,7 @@ describe('use-mutation', () => {
 
 		expect(result.current[0].loading).toBe(false);
 
-		await act(() => {
+		act(() => {
 			result.current[1]();
 		});
 
