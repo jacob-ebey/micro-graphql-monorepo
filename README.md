@@ -46,7 +46,7 @@ return <button onClick={mutate}>Run mutation</button>;
 ## Full examples
 
 - NEXT.js with SSR and hydration [EXAMPLE](https://github.com/jacob-ebey/micro-graphql-monorepo/tree/master/packages/next-example)
-- Create React App [EXAMPLE](https://github.com/jacob-ebey/micro-graphql-monorepo/tree/master/packages/cra-example), [PLAYGROUND](https://codesandbox.io/s/github/jacob-ebey/micro-graphql-cra-example/tree/master/)
+- Create React App [EXAMPLE](https://github.com/jacob-ebey/micro-graphql-monorepo/tree/master/packages/cra-example), [PLAYGROUND](https://codesandbox.io/s/github/jacob-ebey/micro-graphql-monorepo/tree/master/packages/cra-example)
 
 ## React quickstart
 
