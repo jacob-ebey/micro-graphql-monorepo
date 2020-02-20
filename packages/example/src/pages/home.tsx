@@ -36,35 +36,41 @@ export const Home: React.FC = () => {
 		}
 	}), [episodeId]));
 
-	const selector = React.useMemo(() => data && data.allFilms && data.allFilms.films && (
-		<FilmSelector
-			films={data.allFilms.films}
-			selected={episodeId}
-			onChange={handleEpisodeChanged}
-		/>
-	), [episodeId, data, handleEpisodeChanged]);
-
 	return React.useMemo(() => (
-		<>
-			{selector}
+		<section>
+			<header>
+				<nav>
+					<ul>
+						<li>
+							<h1>MicroGraphQL Example</h1>
+						</li>
+					</ul>
+				</nav>
+			</header>
 
-			{loading ? <p>Loading...</p> : <p>&nbsp;</p>}
+			<article>
+				<FilmSelector
+					loading={loading}
+					films={data && data.allFilms && data.allFilms.films}
+					selected={episodeId}
+					onChange={handleEpisodeChanged}
+				/>
 
-			{errors && (
-				<>
-					<p>Errors</p>
-					<pre>
-						<code>{JSON.stringify(errors, null, 2)}</code>
-					</pre>
-				</>
-			)}
+				{errors && (
+					<>
+						<h2>Errors</h2>
+						<pre>
+							<code>{JSON.stringify(errors, null, 2)}</code>
+						</pre>
+					</>
+				)}
 
-			{data && <p>Data</p>}
-			{data && data.film ? (
-				<FilmOverview film={data.film} />
-			) : !loading && (
-				<p>Could not find film</p>
-			)}
-		</>
-	), [selector, data, errors, loading]);
+				{data && data.film ? (
+					<FilmOverview film={data.film} />
+				) : !loading && (
+					<p>Could not find film</p>
+				)}
+			</article>
+		</section>
+	), [data, errors, loading]);
 };

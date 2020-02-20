@@ -9,18 +9,36 @@ export interface IFilmSelectorFilm {
 }
 
 export interface IFilmSelectorProps {
-	films: IFilmSelectorFilm[];
+	loading?: boolean;
+	films?: IFilmSelectorFilm[];
 	selected: string;
 	onChange: React.ChangeEventHandler;
 }
 
-export const FilmSelector: FFC<IFilmSelectorProps> = ({ films, selected, onChange }) => (
-	<select defaultValue={selected} onChange={onChange}>
-		{films.map(({ title, id }) => (
-			<option key={id} value={id}>{title}</option>
-		))}
-	</select>
-);
+export const FilmSelector: FFC<IFilmSelectorProps> = ({
+	loading,
+	films,
+	selected,
+	onChange
+// eslint-disable-next-line no-nested-ternary
+}) => {
+	const loadingRes = React.useMemo(() => (loading ? <code>Loading...</code> : null), [loading]);
+
+	if (!films) {
+		return loadingRes;
+	}
+
+	return (
+		<fieldset>
+			<label htmlFor="film-picker">Pick a film {loadingRes}</label>
+			<select id="film-picker" defaultValue={selected} onChange={onChange}>
+				{films.map(({ title, id }) => (
+					<option key={id} value={id}>{title}</option>
+				))}
+			</select>
+		</fieldset>
+	);
+};
 
 FilmSelector.fragments = {
 	films: frag`
