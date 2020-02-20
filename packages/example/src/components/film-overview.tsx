@@ -8,15 +8,21 @@ export interface IFilmOverviewFilm {
 	title: string;
 	episodeID: number;
 	releaseDate: string;
+	openingCrawl: string;
 }
 
 export interface IFilmOverviewProps {
 	film: IFilmOverviewFilm;
 }
 
-const FilmOverview: FFC<IFilmOverviewProps> = ({ film }) => (
+export const FilmOverview: FFC<IFilmOverviewProps> = ({ film }) => (
 	<div>
-		<p>Episode {film.episodeID} | {film.title}</p>
+		<h2>Episode {film.episodeID} | {film.title}</h2>
+		<dl>
+			<dt>Release date</dt>
+			<dd>{film.releaseDate}</dd>
+		</dl>
+		<blockquote>{film.openingCrawl}</blockquote>
 	</div>
 );
 
@@ -26,8 +32,7 @@ FilmOverview.fragments = {
 			title
 			episodeID
 			releaseDate
+			openingCrawl
 		}
 	`
 };
-
-export default FilmOverview;

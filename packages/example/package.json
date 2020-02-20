@@ -1,0 +1,21 @@
+{
+  "name": "@micro-graphql/example",
+  "version": "0.0.5",
+  "license": "MIT",
+  "main": "lib/index.js",
+  "typings": "lib/index.d.ts",
+  "scripts": {
+    "build": "tsc --build ./tsconfig.json",
+    "dev": "tsc --build ./tsconfig.json -w"
+  },
+  "dependencies": {
+    "@micro-graphql/core": "^0.0.5",
+    "@micro-graphql/hooks": "^0.0.5",
+    "@testing-library/react": "^9.4.0",
+    "react": "^16.8.2"
+  },
+  "devDependencies": {
+    "react": "^16.12.0",
+    "typescript": "^3.7.5"
+  }
+}
