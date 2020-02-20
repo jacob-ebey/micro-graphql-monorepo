@@ -20,8 +20,9 @@
     "build:example": "yarn workspace @micro-graphql/example run build",
     "build:cra-example": "yarn workspace @micro-graphql/cra-example run build",
     "build:next-example": "yarn workspace @micro-graphql/next-example run build",
-    "ci": "run-p test lint",
-    "test": "yarn build:lib && jest --config jest.config.json --no-cache --coverage",
+    "ci": "run-p jest lint",
+    "jest": "jest --config jest.config.json --no-cache --coverage",
+    "test": "run-s build:lib jest",
     "lint": "eslint packages/*/src/**/*.ts packages/*/test/**/*.ts packages/*/test/**/*.tsx packages/next-example/**/*.tsx",
     "postinstall": "echo lerna bootstrap && echo lerna link",
     "ver": "lerna version --yes"
