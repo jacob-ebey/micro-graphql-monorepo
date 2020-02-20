@@ -8,8 +8,7 @@ import {
 	createCache,
 	createClient,
 	IMicroGraphQLClient,
-	queryKeyError,
-	objectHash
+	queryKeyError
 } from '@micro-graphql/core';
 
 import {
@@ -51,7 +50,6 @@ describe('context', () => {
 
 		options = {
 			fetch: global.fetch,
-			hash: objectHash,
 			url: 'https://swapi-graphql.netlify.com/.netlify/functions/index',
 			cache: createCache()
 		};
@@ -70,7 +68,6 @@ describe('context', () => {
 
 		// eslint-disable-next-line @typescript-eslint/no-explicit-any
 		expect(() => result.current.requestQuery({} as any)).toThrow(noClientError);
-		expect(() => result.current.client.hash({})).toThrow(noClientError);
 		// eslint-disable-next-line @typescript-eslint/no-explicit-any
 		expect(() => result.current.client.subscribe({} as any, () => {
 			expect(true).toBe(false);

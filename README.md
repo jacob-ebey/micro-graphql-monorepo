@@ -6,6 +6,12 @@ A tiny, simple to use GraphQL client with SSR support.
 
 - **@micro-graphql/core:** ![npm bundle size](https://img.shields.io/bundlephobia/min/@micro-graphql/core?style=flat-square) ![npm bundle size](https://img.shields.io/bundlephobia/minzip/@micro-graphql/core?style=flat-square)
 - **@micro-graphql/hooks:** ![npm bundle size](https://img.shields.io/bundlephobia/min/@micro-graphql/hooks?style=flat-square) ![npm bundle size](https://img.shields.io/bundlephobia/minzip/@micro-graphql/hooks?style=flat-square)
+- **[@micro-graphql/smart-cache](#smart-cache):** ![npm bundle size](https://img.shields.io/bundlephobia/min/@micro-graphql/smart-cache?style=flat-square) ![npm bundle size](https://img.shields.io/bundlephobia/minzip/@micro-graphql/smart-cache?style=flat-square)
+
+## Full examples
+
+- NEXT.js with SSR and hydration [EXAMPLE](https://github.com/jacob-ebey/micro-graphql-monorepo/tree/master/packages/next-example)
+- Create React App [EXAMPLE](https://github.com/jacob-ebey/micro-graphql-monorepo/tree/master/packages/cra-example), [PLAYGROUND](https://codesandbox.io/s/github/jacob-ebey/micro-graphql-monorepo/tree/master/packages/cra-example)
 
 ## Overview
 
@@ -42,11 +48,6 @@ const [{ data, errors, loading }, mutate] = useMutation(
 
 return <button onClick={mutate}>Run mutation</button>;
 ```
-
-## Full examples
-
-- NEXT.js with SSR and hydration [EXAMPLE](https://github.com/jacob-ebey/micro-graphql-monorepo/tree/master/packages/next-example)
-- Create React App [EXAMPLE](https://github.com/jacob-ebey/micro-graphql-monorepo/tree/master/packages/cra-example), [PLAYGROUND](https://codesandbox.io/s/github/jacob-ebey/micro-graphql-monorepo/tree/master/packages/cra-example)
 
 ## React quickstart
 
@@ -158,6 +159,17 @@ const App = () => (
 
 export default App;
 ```
+
+## Smart Cache
+
+The @micro-graphql/smart-cache package normalizes responses to help
+reduce the number of subsequent requests that are made.
+
+The `__typename` field will be automatically added to your quries
+when using this cache as it's a requirement of the cache.
+
+Plans to add "field pruning" (the process of stripping out fields
+for queries that already exist in the cache) are being flushed out.
 
 ## Contributors
 

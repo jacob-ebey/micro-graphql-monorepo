@@ -1,5 +1,27 @@
 /* eslint-disable import/extensions */
-import { createCache, IMicroGraphQLCache } from '../src';
+import {
+	createCache,
+	IMicroGraphQLCache,
+	gql,
+	frag
+} from '../src';
+
+const fragment = frag`
+	fragment TestFrag on Film {
+		title
+	}
+`;
+
+const query = gql`
+	query TestQuery($id: ID) {
+		film(filmID: $id) {
+			id
+			${fragment}
+		}
+	}
+`;
+
+const variables = { id: 'abc' };
 
 describe('cache', () => {
 	let cache: IMicroGraphQLCache;
@@ -9,7 +31,7 @@ describe('cache', () => {
 	});
 
 	it('returns success as false and undefined data for unset key', () => {
-		const cached = cache.tryGet('unknown');
+		const cached = cache.tryGet(query, variables);
 		expect(cached).toBeTruthy();
 		expect(cached.success).toBe(false);
 		expect(cached.data).toBeUndefined();
@@ -18,8 +40,8 @@ describe('cache', () => {
 	it('can set key and retrieve value', () => {
 		const data = { v: 10 };
 
-		cache.trySet('key', data);
-		const cached = cache.tryGet('key');
+		cache.trySet(query, variables, data);
+		const cached = cache.tryGet(query, variables);
 		expect(cached).toBeTruthy();
 		expect(cached.success).toBe(true);
 		expect(cached.data).toBe(data);
@@ -28,18 +50,18 @@ describe('cache', () => {
 	it('can stringify and restore', () => {
 		const data = { v: 10 };
 
-		cache.trySet('key', data);
+		cache.trySet(query, variables, data);
 		const stringified = cache.stringify();
 
 		const newCache = createCache();
 		newCache.restore(stringified);
 
-		const cached = cache.tryGet('key');
+		const cached = cache.tryGet(query, variables);
 		expect(cached).toBeTruthy();
 		expect(cached.success).toBe(true);
 		expect(cached.data).toBe(data);
 
-		const restoredCached = cache.tryGet('key');
+		const restoredCached = cache.tryGet(query, variables);
 		expect(restoredCached).toBeTruthy();
 		expect(restoredCached.success).toBe(true);
 		expect(restoredCached.data).toEqual(data);

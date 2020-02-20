@@ -11,11 +11,7 @@ export type ObjectHasher = (
 	obj?: null | { [key: string]: unknown }
 ) => string | null;
 
-export function objectHash(obj?: null | { [key: string]: unknown }): string | null {
-	if (!obj) {
-		return null;
-	}
-
+export function objectHash(obj: { [key: string]: unknown }): string {
 	const sorted: unknown = sortObjectKeys(obj);
 	const json = JSON.stringify(sorted);
 

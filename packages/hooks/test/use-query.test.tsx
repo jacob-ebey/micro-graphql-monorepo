@@ -8,8 +8,7 @@ import {
 	createClient,
 	IMicroGraphQLClient,
 	IMicroGraphQLResult,
-	queryKeyError,
-	objectHash
+	queryKeyError
 } from '@micro-graphql/core';
 
 import {
@@ -56,7 +55,6 @@ describe('use-query', () => {
 
 		options = {
 			fetch: global.fetch,
-			hash: objectHash,
 			url: 'https://swapi-graphql.netlify.com/.netlify/functions/index',
 			cache: createCache()
 		};
@@ -70,7 +68,7 @@ describe('use-query', () => {
 
 	it('can skip query', async () => {
 		const { result } = renderHook(
-			() => useQuery<IQueryResult, unknown>({
+			() => useQuery<IQueryResult, {}>({
 				query,
 				variables,
 				skip: true
@@ -84,7 +82,7 @@ describe('use-query', () => {
 	it('can make ssr query', async () => {
 		const ssrClient = createClient({ ...options, ssr: true });
 		const { result } = renderHook(
-			() => useQuery<IQueryResult, unknown>(React.useMemo(() => ({
+			() => useQuery<IQueryResult, {}>(React.useMemo(() => ({
 				query,
 				variables
 			}), [])),
@@ -95,7 +93,7 @@ describe('use-query', () => {
 
 		await ssrClient.resolveQueries();
 		const { result: result2 } = renderHook(
-			() => useQuery<IQueryResult, unknown>(React.useMemo(() => ({
+			() => useQuery<IQueryResult, {}>(React.useMemo(() => ({
 				query,
 				variables
 			}), [])),
@@ -108,7 +106,7 @@ describe('use-query', () => {
 
 	it('can make query', async () => {
 		const { result, waitForNextUpdate } = renderHook(
-			() => useQuery<IQueryResult, unknown>(React.useMemo(() => ({
+			() => useQuery<IQueryResult, {}>(React.useMemo(() => ({
 				query,
 				variables
 			}), [])),
@@ -127,11 +125,11 @@ describe('use-query', () => {
 		const ssrClient = createClient({ ...options, ssr: true });
 		const { result } = renderHook<unknown, IUseQueryResult<IQueryResult>[]>(
 			() => [
-				useQuery<IQueryResult, unknown>(React.useMemo(() => ({
+				useQuery<IQueryResult, {}>(React.useMemo(() => ({
 					query,
 					variables
 				}), [])),
-				useQuery<IQueryResult, unknown>(React.useMemo(() => ({
+				useQuery<IQueryResult, {}>(React.useMemo(() => ({
 					query,
 					variables
 				}), []))
@@ -146,11 +144,11 @@ describe('use-query', () => {
 
 		const { result: result2 } = renderHook<unknown, IUseQueryResult<IQueryResult>[]>(
 			() => [
-				useQuery<IQueryResult, unknown>(React.useMemo(() => ({
+				useQuery<IQueryResult, {}>(React.useMemo(() => ({
 					query,
 					variables
 				}), [])),
-				useQuery<IQueryResult, unknown>(React.useMemo(() => ({
+				useQuery<IQueryResult, {}>(React.useMemo(() => ({
 					query,
 					variables
 				}), []))
@@ -168,11 +166,11 @@ describe('use-query', () => {
 	it('can make subsequent batched queries', async () => {
 		const { result, waitForNextUpdate } = renderHook<unknown, IUseQueryResult<IQueryResult>[]>(
 			() => [
-				useQuery<IQueryResult, unknown>(React.useMemo(() => ({
+				useQuery<IQueryResult, {}>(React.useMemo(() => ({
 					query,
 					variables
 				}), [])),
-				useQuery<IQueryResult, unknown>(React.useMemo(() => ({
+				useQuery<IQueryResult, {}>(React.useMemo(() => ({
 					query,
 					variables
 				}), []))
@@ -190,33 +188,5 @@ describe('use-query', () => {
 		expect(result.current[1].loading).toBe(false);
 		validateResult(result.current[1]);
 		expect(result.current[1].data).toBe(result.current[0].data);
-	});
-
-	it('throws when hash fails', async () => {
-		try {
-			const { result, waitForNextUpdate } = renderHook(
-				() => useQuery<IQueryResult, unknown>({
-					query,
-					variables
-				}),
-				{
-					wrapper: wrapper(
-						createClient({
-							...options,
-							hash: () => null
-						})
-					)
-				}
-			);
-
-			expect(result.current.loading).toBe(true);
-
-			await waitForNextUpdate();
-			expect(true).toBe(false);
-		} catch (err) {
-			expect(err.message).toBe(queryKeyError);
-			return;
-		}
-		expect(true).toBe(false);
 	});
 });

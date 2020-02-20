@@ -12,14 +12,16 @@
 		"<rootDir>/packages/core/test/**/*.test.tsx",
 		"<rootDir>/packages/hooks/test/**/*.test.ts",
 		"<rootDir>/packages/hooks/test/**/*.test.tsx",
-		"<rootDir>/packages/example/test/**/*.test.ts",
-		"<rootDir>/packages/example/test/**/*.test.tsx"
+		"<rootDir>/packages/smart-cache/test/**/*.test.ts",
+		"<rootDir>/packages/smart-cache/test/**/*.test.tsx"
 	],
 	"collectCoverageFrom": [
 		"<rootDir>/packages/core/src/**/*.ts",
 		"<rootDir>/packages/core/src/**/*.tsx",
 		"<rootDir>/packages/hooks/src/**/*.ts",
-		"<rootDir>/packages/hooks/src/**/*.tsx"
+		"<rootDir>/packages/hooks/src/**/*.tsx",
+		"<rootDir>/packages/smart-cache/src/**/*.ts",
+		"<rootDir>/packages/smart-cache/src/**/*.tsx"
 	],
 	"watchPathIgnorePatterns": [
 		"/node_modules/"

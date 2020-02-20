@@ -1,14 +1,14 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable import/extensions */
 
 import { IMicroGraphQLCache } from './cache';
-import { ObjectHasher } from './hash';
+import { objectHash } from './hash';
 
 export interface IMicroGraphQLConfig {
 	cache: IMicroGraphQLCache;
 	url: string;
 	ssr?: boolean;
 	fetch(input: RequestInfo, init?: RequestInit | undefined): Promise<Response>;
-	hash: ObjectHasher;
 }
 
 export interface IMicroGraphQLError {
@@ -23,25 +23,30 @@ export interface IMicroGraphQLResult<TData> {
 	errors?: IMicroGraphQLError[];
 }
 
-export interface IMicroGraphQLQueryOptions<TQueryVariables> {
+export interface IMicroGraphQLQueryOptions<TQueryVariables extends { [key: string]: unknown }> {
 	skipCache?: boolean;
 	variables?: TQueryVariables;
 }
 
-export interface IMicroGraphQLSubscriptionOptions<TQueryVariables = unknown>
+export interface IMicroGraphQLSubscriptionOptions<
+	TQueryVariables extends { [key: string]: unknown }
+>
 	extends IMicroGraphQLQueryOptions<TQueryVariables> {
 	query: string;
 }
 
 export interface IMicroGraphQLClient {
 	cache?: IMicroGraphQLCache;
-	hash: ObjectHasher;
 	ssr?: boolean;
-	query<TData, TQueryVariables>(
+	// eslint-disable-next-line max-len
+	// eslint-disable-next-line @typescript-eslint/no-explicit-any
+	query<TData extends { [key: string]: any }, TQueryVariables extends { [key: string]: any }>(
 		query: string,
 		options?: IMicroGraphQLQueryOptions<TQueryVariables>
 	): Promise<IMicroGraphQLResult<TData>>;
-	subscribe: <TData, TQueryVariables>(
+	// eslint-disable-next-line max-len
+	// eslint-disable-next-line @typescript-eslint/no-explicit-any
+	subscribe: <TData extends { [key: string]: any }, TQueryVariables extends { [key: string]: any }>(
 		options: IMicroGraphQLSubscriptionOptions<TQueryVariables>,
 		subscription: (data: IMicroGraphQLResult<TData>) => void
 	) => () => void;
@@ -56,38 +61,36 @@ export function createClient({
 	url,
 	cache,
 	ssr,
-	fetch,
-	hash
+	fetch
 }: IMicroGraphQLConfig): IMicroGraphQLClient {
-	// eslint-disable-next-line @typescript-eslint/no-explicit-any
 	const subscriptions = new Map<string, Array<(data: IMicroGraphQLResult<any> & {}) => void>>();
 
 	const queries: { [key: string]: Promise<IMicroGraphQLResult<unknown>> } = {};
 
 	return {
 		cache,
-		hash,
 		ssr,
 		resolveQueries: async (): Promise<void> => {
 			await Promise.all(Object.getOwnPropertyNames(queries).map(key => queries[key]));
 		},
-		subscribe: <TData, TQueryVariables>(
+		// eslint-disable-next-line max-len
+		subscribe: <TData extends { [key: string]: any }, TQueryVariables extends { [key: string]: any }>(
 			options: IMicroGraphQLSubscriptionOptions<TQueryVariables>,
 			subscription: (data: IMicroGraphQLResult<TData>) => void
 		): (() => void) => {
-			const key = hash({ query: options.query, variables: options.variables });
+			const query = !options.skipCache && cache.prepareQuery
+				? cache.prepareQuery(options.query)
+				: options.query;
 
-			if (!key) {
-				throw new MicroGraphQLKeyError(queryKeyError);
-			}
-
-			const cached = cache.tryGet<TData>(key);
+			const cached = cache.tryGet<TData>(query, options.variables);
 			if (cached.success) {
 				subscription({
 					loading: false,
 					data: cached.data
 				});
 			}
+
+			const key = objectHash({ query, variables: options.variables });
 
 			const subs = subscriptions.get(key) || [];
 			subs.push(subscription);
@@ -101,22 +104,19 @@ export function createClient({
 				);
 			};
 		},
-		query: async <TData, TQueryVariables = unknown>(
-			query: string,
+		// eslint-disable-next-line max-len
+		query: async <TData extends { [key: string]: any }, TQueryVariables extends { [key: string]: any }>(
+			inputQuery: string,
 			options?: IMicroGraphQLQueryOptions<TQueryVariables>
 		): Promise<IMicroGraphQLResult<TData>> => {
-			const key = hash({ query, variables: options && options.variables });
-
-			if (!key) {
-				throw new MicroGraphQLKeyError(queryKeyError);
-			}
-
 			const { skipCache }: IMicroGraphQLQueryOptions<TQueryVariables> = {
 				skipCache: false,
 				...options
 			};
 
-			const cachedResult = !skipCache && cache.tryGet<TData>(key);
+			const query = !skipCache && cache.prepareQuery ? cache.prepareQuery(inputQuery) : inputQuery;
+
+			const cachedResult = !skipCache && cache.tryGet<TData>(query, options && options.variables);
 
 			if (!skipCache && cachedResult && cachedResult.success) {
 				return {
@@ -124,6 +124,8 @@ export function createClient({
 					data: cachedResult.data
 				};
 			}
+
+			const key = objectHash({ query, variables: options && options.variables });
 
 			const subs = subscriptions.get(key);
 
@@ -148,7 +150,7 @@ export function createClient({
 				const json = (await response.json()) as IMicroGraphQLResult<TData>;
 
 				if (json.data) {
-					cache.trySet<TData>(key, json.data);
+					cache.trySet<TData>(query, options && options.variables, json.data);
 				}
 
 				return {

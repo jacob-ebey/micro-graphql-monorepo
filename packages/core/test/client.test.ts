@@ -5,9 +5,8 @@ import {
 	createCache,
 	createClient,
 	IMicroGraphQLResult,
-	objectHash,
-	queryKeyError,
-	IMicroGraphQLCacheResult
+	IMicroGraphQLCacheResult,
+	IMicroGraphQLConfig
 } from '../src';
 
 describe('client', () => {
@@ -34,8 +33,7 @@ describe('client', () => {
 		expect(result!.data!.film.title).toBe('A New Hope');
 	};
 
-	// eslint-disable-next-line @typescript-eslint/no-explicit-any
-	let options: any;
+	let options: IMicroGraphQLConfig;
 	beforeEach(() => {
 		global.fetch.resetMocks();
 		global.fetch.mockResponse(`
@@ -44,24 +42,9 @@ describe('client', () => {
 
 		options = {
 			fetch: global.fetch,
-			hash: objectHash,
 			url: 'https://swapi-graphql.netlify.com/.netlify/functions/index',
 			cache: createCache()
 		};
-	});
-
-	it('throws if fails to hash query', async () => {
-		const client = createClient({
-			...options,
-			hash: () => null
-		});
-
-		try {
-			await client.query<IQueryResult, unknown>(query, { variables });
-			expect(false).toBe(true);
-		} catch (err) {
-			expect(err.message).toEqual(queryKeyError);
-		}
 	});
 
 	it('can return cached result', async () => {
@@ -81,7 +64,7 @@ describe('client', () => {
 			}
 		});
 
-		const result = await client.query<IQueryResult, unknown>(query, {
+		const result = await client.query<IQueryResult, {}>(query, {
 			variables
 		});
 		expect(result).toBeTruthy();
@@ -107,7 +90,7 @@ describe('client', () => {
 
 		// eslint-disable-next-line @typescript-eslint/no-explicit-any
 		let result: any;
-		client.subscribe<IQueryResult, unknown>({
+		client.subscribe<IQueryResult, {}>({
 			query,
 			variables
 		}, (res) => {
@@ -124,17 +107,17 @@ describe('client', () => {
 		`);
 		const client = createClient(options);
 
-		const result = await client.query<IQueryResult, unknown>(query, {
+		const result = await client.query<IQueryResult, {}>(query, {
 			variables
 		});
 		expect(result.data).toBeUndefined();
-		expect(client.cache!.tryGet(client.hash({ query, variables }) as string).success).toBe(false);
+		expect(client.cache!.tryGet(query, variables).success).toBe(false);
 	});
 
 	it('can make query', async () => {
 		const client = createClient(options);
 
-		const result = await client.query<IQueryResult, unknown>(query, {
+		const result = await client.query<IQueryResult, {}>(query, {
 			variables
 		});
 		validateResult(result);
@@ -143,7 +126,7 @@ describe('client', () => {
 	it('can make ssr query', async () => {
 		const client = createClient({ ...options, ssr: true });
 
-		const result = client.query<IQueryResult, unknown>(query, {
+		const result = client.query<IQueryResult, {}>(query, {
 			variables
 		});
 
@@ -158,12 +141,12 @@ describe('client', () => {
 			cache: createCache()
 		});
 
-		const result = await client.query<IQueryResult, unknown>(query, {
+		const result = await client.query<IQueryResult, {}>(query, {
 			variables
 		});
 		validateResult(result);
 
-		const secondResult = await client.query<IQueryResult, unknown>(query, {
+		const secondResult = await client.query<IQueryResult, {}>(query, {
 			variables
 		});
 		expect(secondResult.data).toBe(result.data);
@@ -175,33 +158,17 @@ describe('client', () => {
 			cache: createCache()
 		});
 
-		const result = await client.query<IQueryResult, unknown>(query, {
+		const result = await client.query<IQueryResult, {}>(query, {
 			variables
 		});
 		validateResult(result);
 
-		const secondResult = await client.query<IQueryResult, unknown>(query, {
+		const secondResult = await client.query<IQueryResult, {}>(query, {
 			skipCache: true,
 			variables
 		});
 		expect(secondResult.data).not.toBe(result.data);
 		expect(secondResult.data).toEqual(result.data);
-	});
-
-	it('throws if fails to hash query on subscription', async () => {
-		const client = createClient({
-			...options,
-			hash: () => null
-		});
-
-		try {
-			client.subscribe({ query, variables }, () => {
-				expect(false).toBe(true);
-			});
-			expect(false).toBe(true);
-		} catch (err) {
-			expect(err.message).toEqual(queryKeyError);
-		}
 	});
 
 	it('can receive subscription value', async () => {
@@ -212,7 +179,7 @@ describe('client', () => {
 
 		let subscriptionCount = 0;
 		let dataFromSubscription: IMicroGraphQLResult<IQueryResult>;
-		const unsubscribe = client.subscribe<IQueryResult, unknown>(
+		const unsubscribe = client.subscribe<IQueryResult, {}>(
 			{ query, variables },
 			data => {
 				dataFromSubscription = data;
@@ -220,7 +187,7 @@ describe('client', () => {
 			}
 		);
 
-		const result = await client.query<IQueryResult, unknown>(query, {
+		const result = await client.query<IQueryResult, {}>(query, {
 			variables
 		});
 		validateResult(result);
@@ -228,7 +195,7 @@ describe('client', () => {
 
 		unsubscribe();
 
-		const secondResult = await client.query<IQueryResult, unknown>(query, {
+		const secondResult = await client.query<IQueryResult, {}>(query, {
 			skipCache: true,
 			variables
 		});

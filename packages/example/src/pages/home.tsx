@@ -9,10 +9,12 @@ import { FilmSelector } from '../components/film-selector';
 const HOME_QUERY = gql`
   query TestQuery($id: ID) {
     film(id: $id) {
+			id
       ${FilmOverview.fragments.film}
     }
     allFilms {
       films {
+				id
         ${FilmSelector.fragments.films}
       }
     }

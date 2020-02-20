@@ -1,5 +1,5 @@
 /* eslint-disable import/extensions */
-import { objectHash, sortObjectKeys } from '../src';
+import { objectHash, sortObjectKeys } from '../src/hash';
 
 describe('hash', () => {
 	describe('sortObjectKeys', () => {
@@ -15,11 +15,6 @@ describe('hash', () => {
 	});
 
 	describe('objectHash', () => {
-		it('returns null for falsey input', () => {
-			expect(objectHash(null)).toBeNull();
-			expect(objectHash(undefined)).toBeNull();
-		});
-
 		it('hashes object reliably', () => {
 			const input = {
 				z: 'z',
