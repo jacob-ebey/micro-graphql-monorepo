@@ -14,7 +14,7 @@ export interface IFilmOverviewProps {
 	film: IFilmOverviewFilm;
 }
 
-const FilmOverview: FFC<IFilmOverviewProps> = ({ film }) => (
+export const FilmOverview: FFC<IFilmOverviewProps> = ({ film }) => (
 	<div>
 		<p>Episode {film.episodeID} | {film.title}</p>
 	</div>
@@ -29,5 +29,3 @@ FilmOverview.fragments = {
 		}
 	`
 };
-
-export default FilmOverview;

@@ -14,7 +14,7 @@ export interface IFilmSelectorProps {
 	onChange: React.ChangeEventHandler;
 }
 
-const FilmSelector: FFC<IFilmSelectorProps> = ({ films, selected, onChange }) => (
+export const FilmSelector: FFC<IFilmSelectorProps> = ({ films, selected, onChange }) => (
 	<select defaultValue={selected} onChange={onChange}>
 		{films.map(({ title, id }) => (
 			<option key={id} value={id}>{title}</option>
@@ -30,5 +30,3 @@ FilmSelector.fragments = {
 		}
 	`
 };
-
-export default FilmSelector;

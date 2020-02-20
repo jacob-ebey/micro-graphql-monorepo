@@ -1,5 +1,6 @@
 import * as React from 'react';
 import { AppProps } from 'next/app';
+import 'tacit-css/dist/tacit-css-1.5.1.min.css';
 
 import { IMicroGraphQLClient } from '@micro-graphql/core';
 // eslint-disable-next-line @typescript-eslint/no-unused-vars

@@ -15,7 +15,7 @@
     "build:lib": "run-s build:core && run-p build:hooks",
     "build:core": "yarn workspace @micro-graphql/core run build",
     "build:hooks": "yarn workspace @micro-graphql/hooks run build",
-    "build:examples": "run-p build:next-example build:cra-example",
+    "build:examples": "yarn workspace @micro-graphql/example run build && run-p build:next-example build:cra-example",
     "build:cra-example": "yarn workspace @micro-graphql/cra-example run build",
     "build:next-example": "yarn workspace @micro-graphql/next-example run build",
     "ci": "run-p test lint",
@@ -25,6 +25,7 @@
     "ver": "lerna version --yes"
   },
   "devDependencies": {
+    "@testing-library/jest-dom": "^5.1.1",
     "@testing-library/react-hooks": "^3.2.1",
     "@types/isomorphic-fetch": "^0.0.34",
     "@types/jest": "^25.1.2",

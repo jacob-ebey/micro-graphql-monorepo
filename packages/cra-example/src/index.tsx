@@ -1,9 +1,11 @@
-import React from 'react';
+import * as React from 'react';
 import ReactDOM from 'react-dom';
+import 'tacit-css/dist/tacit-css-1.5.1.min.css';
 
 import App from './App';
 import * as serviceWorker from './serviceWorker';
 
+// eslint-disable-next-line no-undef
 ReactDOM.render(<App />, document.getElementById('root'));
 
 // If you want your app to work offline and load faster, you can change

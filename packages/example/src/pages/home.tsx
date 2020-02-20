@@ -3,8 +3,8 @@ import * as React from 'react';
 import { gql } from '@micro-graphql/core';
 import { useQuery } from '@micro-graphql/hooks';
 
-import FilmOverview from '../components/film-overview';
-import FilmSelector from '../components/film-selector';
+import { FilmOverview } from '../components/film-overview';
+import { FilmSelector } from '../components/film-selector';
 
 const HOME_QUERY = gql`
   query TestQuery($id: ID) {
@@ -19,7 +19,7 @@ const HOME_QUERY = gql`
   }
 `;
 
-const Home: React.FC = () => {
+export const Home: React.FC = () => {
 	const [episodeId, setEpisodeId] = React.useState('ZmlsbXM6MQ==');
 	const handleEpisodeChanged = React.useCallback(
 		(event: React.ChangeEvent<HTMLSelectElement>): void => {
@@ -68,5 +68,3 @@ const Home: React.FC = () => {
 		</>
 	), [selector, data, errors, loading]);
 };
-
-export default Home;

@@ -12,10 +12,12 @@
   "dependencies": {
     "@micro-graphql/core": "^0.0.5",
     "@micro-graphql/hooks": "^0.0.5",
+    "@micro-graphql/example": "^0.0.5",
     "isomorphic-fetch": "^2.2.1",
     "next": "^9.2.1",
     "react": "^16.12.0",
-    "react-dom": "^16.12.0"
+    "react-dom": "^16.12.0",
+    "tacit-css": "^1.5.1"
   },
   "devDependencies": {
     "@types/node": "^13.7.0",
