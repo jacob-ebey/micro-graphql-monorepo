@@ -1,12 +1,12 @@
 {
   "name": "@micro-graphql/cra-example",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "private": true,
   "dependencies": {
-    "@micro-graphql/core": "^0.1.1",
-    "@micro-graphql/example": "^0.1.1",
-    "@micro-graphql/hooks": "^0.1.1",
-    "@micro-graphql/smart-cache": "^0.1.1",
+    "@micro-graphql/core": "^0.1.2",
+    "@micro-graphql/example": "^0.1.2",
+    "@micro-graphql/hooks": "^0.1.2",
+    "@micro-graphql/smart-cache": "^0.1.2",
     "@testing-library/jest-dom": "^4.2.4",
     "@testing-library/react": "^9.3.2",
     "@testing-library/user-event": "^7.1.2",
