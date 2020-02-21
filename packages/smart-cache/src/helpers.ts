@@ -1,5 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { DocumentNode, visit, Kind } from 'graphql';
+import { DocumentNode } from 'graphql/language/ast';
+import { Kind } from 'graphql/language/kinds';
+import { visit } from 'graphql/language/visitor';
 
 const isInlineFragment = (node: any): boolean => node.kind === Kind.INLINE_FRAGMENT;
 
