@@ -8,8 +8,7 @@ import {
 	createClient,
 	IMicroGraphQLClient,
 	IMicroGraphQLConfig,
-	IMicroGraphQLResult,
-	objectHash
+	IMicroGraphQLResult
 } from '@micro-graphql/core';
 
 import {
@@ -55,7 +54,6 @@ describe('use-mutation', () => {
 
 		options = {
 			fetch: global.fetch,
-			hash: objectHash,
 			url: 'https://swapi-graphql.netlify.com/.netlify/functions/index',
 			cache: createCache()
 		};
@@ -72,7 +70,7 @@ describe('use-mutation', () => {
 			result,
 			waitForNextUpdate
 		} = renderHook<unknown, UseMutationResult<IQueryResult, unknown>>(
-			() => useMutation<IQueryResult, unknown>(React.useMemo(() => ({
+			() => useMutation<IQueryResult, {}>(React.useMemo(() => ({
 				query: mutation,
 				variables
 			}), [])),

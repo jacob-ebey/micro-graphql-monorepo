@@ -1,18 +1,16 @@
 import fetch from 'isomorphic-fetch';
 
 import {
-	createCache,
 	createClient,
-	objectHash,
 	IMicroGraphQLClient
 } from '@micro-graphql/core';
+import { createCache } from '@micro-graphql/smart-cache';
 
 export function newClient(): IMicroGraphQLClient {
 	const client = createClient({
 		ssr: typeof window === 'undefined',
 		fetch,
 		cache: createCache(),
-		hash: objectHash,
 		url: 'https://swapi-graphql.netlify.com/.netlify/functions/index'
 	});
 

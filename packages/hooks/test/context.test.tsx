@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 
 /* eslint-disable import/no-extraneous-dependencies */
 import * as React from 'react';
@@ -8,8 +9,7 @@ import {
 	createCache,
 	createClient,
 	IMicroGraphQLClient,
-	queryKeyError,
-	objectHash
+	queryKeyError
 } from '@micro-graphql/core';
 
 import {
@@ -51,7 +51,6 @@ describe('context', () => {
 
 		options = {
 			fetch: global.fetch,
-			hash: objectHash,
 			url: 'https://swapi-graphql.netlify.com/.netlify/functions/index',
 			cache: createCache()
 		};
@@ -68,10 +67,13 @@ describe('context', () => {
 			() => React.useContext<IMicroGraphQLContextValue>(MicroGraphQLContext)
 		);
 
-		// eslint-disable-next-line @typescript-eslint/no-explicit-any
+		expect(() => result.current.client.cache.prepareQuery('')).toThrow(noClientError);
+		expect(() => result.current.client.cache.restore('')).toThrow(noClientError);
+		expect(() => result.current.client.cache.stringify()).toThrow(noClientError);
+		expect(() => result.current.client.cache.tryGet('', {})).toThrow(noClientError);
+		expect(() => result.current.client.cache.trySet('', {}, {})).toThrow(noClientError);
+
 		expect(() => result.current.requestQuery({} as any)).toThrow(noClientError);
-		expect(() => result.current.client.hash({})).toThrow(noClientError);
-		// eslint-disable-next-line @typescript-eslint/no-explicit-any
 		expect(() => result.current.client.subscribe({} as any, () => {
 			expect(true).toBe(false);
 		})).toThrow(noClientError);

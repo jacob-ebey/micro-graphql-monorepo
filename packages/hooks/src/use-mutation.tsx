@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import * as React from 'react';
 
 import {
@@ -16,7 +17,8 @@ export type UseMutationResult<TData, TQueryVariables> = [
 	() => void
 ];
 
-export function useMutation<TData, TQueryVariables>(
+// eslint-disable-next-line max-len
+export function useMutation<TData extends { [key: string]: any }, TQueryVariables extends { [key: string]: any }>(
 	options: IMicroGraphQLSubscriptionOptions<TQueryVariables>
 ): UseMutationResult<TData, TQueryVariables> {
 	const { requestQuery } = React.useContext(MicroGraphQLContext);

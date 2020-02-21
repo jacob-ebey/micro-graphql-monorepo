@@ -1,20 +1,35 @@
+import { objectHash } from './hash';
+
 export interface IMicroGraphQLCacheResult<TValue> {
 	data?: TValue;
 	success: boolean;
 }
 
 export interface IMicroGraphQLCache {
-	tryGet<TValue>(key: string): IMicroGraphQLCacheResult<TValue>;
-	trySet<TValue>(key: string, data?: TValue): boolean;
+	tryGet<TValue>(
+		query: string,
+		variables: { [key: string]: unknown } | undefined
+	): IMicroGraphQLCacheResult<TValue>;
+	trySet<TValue>(
+		query: string,
+		variables: { [key: string]: unknown } | undefined,
+		data?: TValue
+	): boolean;
 	stringify(): string;
 	restore(data: string): void;
+	prepareQuery(query: string): string;
 }
 
 export function createCache(): IMicroGraphQLCache {
 	let cache: { [key: string]: unknown } = {};
 
 	return {
-		tryGet: <TValue>(key: string): IMicroGraphQLCacheResult<TValue> => {
+		tryGet: <TValue>(
+			query: string,
+			variables: { [key: string]: unknown } | undefined
+		): IMicroGraphQLCacheResult<TValue> => {
+			const key = objectHash({ query, variables });
+
 			const success = key in cache;
 			const data = success ? cache[key] : undefined;
 
@@ -23,7 +38,13 @@ export function createCache(): IMicroGraphQLCache {
 				success
 			};
 		},
-		trySet: <TValue>(key: string, data?: TValue): boolean => {
+		trySet: <TValue>(
+			query: string,
+			variables: { [key: string]: unknown } | undefined,
+			data?: TValue
+		): boolean => {
+			const key = objectHash({ query, variables });
+
 			cache[key] = data;
 
 			return false;
@@ -33,6 +54,9 @@ export function createCache(): IMicroGraphQLCache {
 		},
 		restore(data: string): void {
 			cache = JSON.parse(data);
+		},
+		prepareQuery(query: string): string {
+			return query;
 		}
 	};
 }

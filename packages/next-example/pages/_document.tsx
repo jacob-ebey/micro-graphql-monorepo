@@ -9,29 +9,14 @@ import Document, {
 	DocumentInitialProps,
 	DocumentContext
 } from 'next/document';
-import fetch from 'isomorphic-fetch';
 
-import {
-	createCache,
-	createClient,
-	objectHash,
-	IMicroGraphQLClient
-} from '@micro-graphql/core';
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-import { MicroGraphQLProvider } from '@micro-graphql/hooks';
-import MyApp from './_app';
+import { newClient } from '../graphql/client';
 
 class MyDocument extends Document {
 	public static async getInitialProps(ctx: DocumentContext): Promise<DocumentInitialProps> {
 		const originalRenderPage = ctx.renderPage;
 
-		const microClient = createClient({
-			ssr: true,
-			fetch,
-			cache: createCache(),
-			hash: objectHash,
-			url: 'https://swapi-graphql.netlify.com/.netlify/functions/index'
-		});
+		const microClient = newClient();
 
 		ctx.renderPage({
 			enhanceApp: (App) => (props): JSX.Element => (

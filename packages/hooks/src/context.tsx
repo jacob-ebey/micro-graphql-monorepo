@@ -1,12 +1,15 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import * as React from 'react';
 
 import {
 	IMicroGraphQLClient,
 	IMicroGraphQLResult,
-	IMicroGraphQLSubscriptionOptions,
-	queryKeyError,
-	MicroGraphQLKeyError
+	IMicroGraphQLSubscriptionOptions
 } from '@micro-graphql/core';
+
+import {
+	objectHash
+} from '@micro-graphql/core/lib/hash';
 
 export const noClientError = 'no client provided, make sure a MicroGraphQLProvider is somewhere up the tree';
 
@@ -18,15 +21,29 @@ export interface IUseQueryResult<TData> extends IMicroGraphQLResult<TData> {
 
 export interface IMicroGraphQLContextValue {
 	client: IMicroGraphQLClient;
-	requestQuery: <TQueryVariables>(
+	requestQuery: <TQueryVariables extends { [key: string]: any }>(
 		options: IMicroGraphQLSubscriptionOptions<TQueryVariables>
 	) => void;
 }
 
 export const MicroGraphQLContext = React.createContext<IMicroGraphQLContextValue>({
 	client: {
-		hash(): string {
-			throw new MicroGraphQLHooksNoClientProvidedError(noClientError);
+		cache: {
+			prepareQuery(): string {
+				throw new MicroGraphQLHooksNoClientProvidedError(noClientError);
+			},
+			restore(): void {
+				throw new MicroGraphQLHooksNoClientProvidedError(noClientError);
+			},
+			stringify(): string {
+				throw new MicroGraphQLHooksNoClientProvidedError(noClientError);
+			},
+			tryGet(): any {
+				throw new MicroGraphQLHooksNoClientProvidedError(noClientError);
+			},
+			trySet(): any {
+				throw new MicroGraphQLHooksNoClientProvidedError(noClientError);
+			}
 		},
 		async query<TData>(): Promise<IMicroGraphQLResult<TData>> {
 			throw new MicroGraphQLHooksNoClientProvidedError(noClientError);
@@ -56,17 +73,15 @@ export const MicroGraphQLProvider: React.FC<IMicroGraphQLProviderProps> = ({
 
 	const value: IMicroGraphQLContextValue = React.useMemo(() => ({
 		client,
-		requestQuery<TQueryVariables>(
+		requestQuery<TQueryVariables extends { [key: string]: any }>(
 			options: IMicroGraphQLSubscriptionOptions<TQueryVariables>
 		): void {
-			const key = client.hash({
-				query: options.query,
+			const query = client.cache.prepareQuery(options.query);
+
+			const key = objectHash({
+				query,
 				variables: options.variables
 			});
-
-			if (!key) {
-				throw new MicroGraphQLKeyError(queryKeyError);
-			}
 
 			let shouldLoad = true;
 			if (!Object.prototype.hasOwnProperty.call(queriesRef.current, key)) {
@@ -78,8 +93,8 @@ export const MicroGraphQLProvider: React.FC<IMicroGraphQLProviderProps> = ({
 			if (shouldLoad) {
 				queriesRef.current[key] = true;
 
-				const { query, ...queryOptions } = options;
-				client.query(query, queryOptions).then().catch().then(() => {
+				const { query: q, ...queryOptions } = options;
+				client.query(q, queryOptions).then().catch().then(() => {
 					queriesRef.current[key] = false;
 				});
 			}

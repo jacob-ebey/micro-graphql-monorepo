@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import * as React from 'react';
 
 import {
@@ -9,7 +10,7 @@ import {
 	MicroGraphQLContext
 } from './context';
 
-export interface IUseQueryOptions<TVariables>
+export interface IUseQueryOptions<TVariables extends { [key: string]: any }>
 	extends IMicroGraphQLSubscriptionOptions<TVariables> {
 	skip?: boolean;
 }
@@ -18,7 +19,8 @@ export interface IUseQueryOptions<TVariables>
 // eslint-disable-next-line @typescript-eslint/no-empty-function
 const noop = (): void => {};
 
-export function useQuery<TData, TQueryVariables>(
+// eslint-disable-next-line max-len
+export function useQuery<TData extends { [key: string]: any }, TQueryVariables extends { [key: string]: any }>(
 	options: IUseQueryOptions<TQueryVariables>
 ): IUseQueryResult<TData> {
 	const { client, requestQuery } = React.useContext(MicroGraphQLContext);
