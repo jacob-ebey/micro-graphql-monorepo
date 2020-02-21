@@ -17,7 +17,7 @@ export interface IMicroGraphQLCache {
 	): boolean;
 	stringify(): string;
 	restore(data: string): void;
-	prepareQuery?(query: string): string;
+	prepareQuery(query: string): string;
 }
 
 export function createCache(): IMicroGraphQLCache {
@@ -54,6 +54,9 @@ export function createCache(): IMicroGraphQLCache {
 		},
 		restore(data: string): void {
 			cache = JSON.parse(data);
+		},
+		prepareQuery(query: string): string {
+			return query;
 		}
 	};
 }

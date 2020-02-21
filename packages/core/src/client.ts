@@ -36,7 +36,7 @@ export interface IMicroGraphQLSubscriptionOptions<
 }
 
 export interface IMicroGraphQLClient {
-	cache?: IMicroGraphQLCache;
+	cache: IMicroGraphQLCache;
 	ssr?: boolean;
 	// eslint-disable-next-line max-len
 	// eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -78,9 +78,7 @@ export function createClient({
 			options: IMicroGraphQLSubscriptionOptions<TQueryVariables>,
 			subscription: (data: IMicroGraphQLResult<TData>) => void
 		): (() => void) => {
-			const query = !options.skipCache && cache.prepareQuery
-				? cache.prepareQuery(options.query)
-				: options.query;
+			const query = cache.prepareQuery(options.query);
 
 			const cached = cache.tryGet<TData>(query, options.variables);
 			if (cached.success) {
@@ -114,15 +112,16 @@ export function createClient({
 				...options
 			};
 
-			const query = !skipCache && cache.prepareQuery ? cache.prepareQuery(inputQuery) : inputQuery;
+			const query = cache.prepareQuery(inputQuery);
+			if (!skipCache) {
+				const cachedResult = !skipCache && cache.tryGet<TData>(query, options && options.variables);
 
-			const cachedResult = !skipCache && cache.tryGet<TData>(query, options && options.variables);
-
-			if (!skipCache && cachedResult && cachedResult.success) {
-				return {
-					loading: false,
-					data: cachedResult.data
-				};
+				if (cachedResult.success) {
+					return {
+						loading: false,
+						data: cachedResult.data
+					};
+				}
 			}
 
 			const key = objectHash({ query, variables: options && options.variables });

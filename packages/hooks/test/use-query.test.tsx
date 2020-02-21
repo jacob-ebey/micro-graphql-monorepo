@@ -7,8 +7,7 @@ import {
 	createCache,
 	createClient,
 	IMicroGraphQLClient,
-	IMicroGraphQLResult,
-	queryKeyError
+	IMicroGraphQLResult
 } from '@micro-graphql/core';
 
 import {

@@ -27,11 +27,10 @@ const typeNameField = createField('__typename');
 
 const connectionFields = ['edges', 'pageInfo'];
 
-const excludeMetaFields = useConnections
-	? (node: any, _: any, parent: any): any => node.selections.some(isInlineFragment)
-			|| hasEdgesField(node.selections)
-			|| (!isInlineFragment(parent) && connectionFields.includes(parent.name.value))
-	: (): false => false;
+const excludeMetaFields = (node: any, _: any, parent: any): any => node.selections
+	.some(isInlineFragment)
+	|| hasEdgesField(node.selections)
+	|| (!isInlineFragment(parent) && connectionFields.includes(parent.name.value));
 
 export function addRequiredFields(query: DocumentNode): any {
 	return visit(query, {

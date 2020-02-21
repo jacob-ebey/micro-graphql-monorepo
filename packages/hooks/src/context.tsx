@@ -28,6 +28,23 @@ export interface IMicroGraphQLContextValue {
 
 export const MicroGraphQLContext = React.createContext<IMicroGraphQLContextValue>({
 	client: {
+		cache: {
+			prepareQuery(): string {
+				throw new MicroGraphQLHooksNoClientProvidedError(noClientError);
+			},
+			restore(): void {
+				throw new MicroGraphQLHooksNoClientProvidedError(noClientError);
+			},
+			stringify(): string {
+				throw new MicroGraphQLHooksNoClientProvidedError(noClientError);
+			},
+			tryGet(): any {
+				throw new MicroGraphQLHooksNoClientProvidedError(noClientError);
+			},
+			trySet(): any {
+				throw new MicroGraphQLHooksNoClientProvidedError(noClientError);
+			}
+		},
 		async query<TData>(): Promise<IMicroGraphQLResult<TData>> {
 			throw new MicroGraphQLHooksNoClientProvidedError(noClientError);
 		},
@@ -59,9 +76,7 @@ export const MicroGraphQLProvider: React.FC<IMicroGraphQLProviderProps> = ({
 		requestQuery<TQueryVariables extends { [key: string]: any }>(
 			options: IMicroGraphQLSubscriptionOptions<TQueryVariables>
 		): void {
-			const query = client.cache && client.cache.prepareQuery
-				? client.cache.prepareQuery(options.query)
-				: options.query;
+			const query = client.cache.prepareQuery(options.query);
 
 			const key = objectHash({
 				query,

@@ -13,6 +13,9 @@ const query = gql`
 		film(filmID: $id) {
 			id
 			${fragment}
+			... on Film {
+        title
+    	}
 		}
 	}
 `;
@@ -34,7 +37,12 @@ describe('smart-cache', () => {
 	});
 
 	it('can set key and retrieve value without id', () => {
-		const data = { film: { __typename: 'Film', title: 'abc' } };
+		const data = {
+			film: {
+				__typename: 'Film',
+				title: 'abc'
+			}
+		};
 
 		const q = cache.prepareQuery!(gql`
 			query TestQuery($id: ID) {
@@ -52,7 +60,13 @@ describe('smart-cache', () => {
 	});
 
 	it('can set key and retrieve value', () => {
-		const data = { film: { __typename: 'Film', id: 'abc', title: 'abc' } };
+		const data = {
+			film: {
+				__typename: 'Film',
+				id: 'abc',
+				title: 'abc'
+			}
+		};
 
 		const q = cache.prepareQuery!(query);
 
@@ -64,7 +78,13 @@ describe('smart-cache', () => {
 	});
 
 	it('can set key and retrieve subset', () => {
-		const data = { film: { __typename: 'Film', id: 'abc', title: 'abc' } };
+		const data = {
+			film: {
+				__typename: 'Film',
+				id: 'abc',
+				title: 'abc'
+			}
+		};
 
 		const q = cache.prepareQuery!(query);
 
@@ -85,7 +105,13 @@ describe('smart-cache', () => {
 	});
 
 	it('can stringify and restore', () => {
-		const data = { film: { __typename: 'Film', id: 'abc', title: 'abc' } };
+		const data = {
+			film: {
+				__typename: 'Film',
+				id: 'abc',
+				title: 'abc'
+			}
+		};
 
 		const q = cache.prepareQuery!(query);
 

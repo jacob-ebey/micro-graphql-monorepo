@@ -47,6 +47,56 @@ describe('client', () => {
 		};
 	});
 
+	it('can return cached result with prepare query', async () => {
+		// eslint-disable-next-line @typescript-eslint/no-explicit-any
+		const cached: any = {};
+
+		const client = createClient({
+			...options,
+			cache: {
+				tryGet: <TValue>(): IMicroGraphQLCacheResult<TValue> => ({
+					success: true,
+					data: cached
+				}),
+				trySet: (): boolean => false,
+				restore: jest.fn(),
+				stringify: jest.fn(),
+				prepareQuery: (q: string): string => q
+			}
+		});
+
+		const result = await client.query<IQueryResult, {}>(query, {
+			variables
+		});
+		expect(result).toBeTruthy();
+		expect(result.data).toBe(cached);
+	});
+
+	it('can skip cached result with prepare query', async () => {
+		// eslint-disable-next-line @typescript-eslint/no-explicit-any
+		const cached: any = {};
+
+		const client = createClient({
+			...options,
+			cache: {
+				tryGet: <TValue>(): IMicroGraphQLCacheResult<TValue> => ({
+					success: true,
+					data: cached
+				}),
+				trySet: (): boolean => false,
+				restore: jest.fn(),
+				stringify: jest.fn(),
+				prepareQuery: (q: string): string => q
+			}
+		});
+
+		const result = await client.query<IQueryResult, {}>(query, {
+			variables,
+			skipCache: true
+		});
+		expect(result).toBeTruthy();
+	});
+
 	it('can return cached result', async () => {
 		// eslint-disable-next-line @typescript-eslint/no-explicit-any
 		const cached: any = {};
@@ -60,7 +110,8 @@ describe('client', () => {
 				}),
 				trySet: (): boolean => false,
 				restore: jest.fn(),
-				stringify: jest.fn()
+				stringify: jest.fn(),
+				prepareQuery: (q: string): string => q
 			}
 		});
 
@@ -75,6 +126,7 @@ describe('client', () => {
 		// eslint-disable-next-line @typescript-eslint/no-explicit-any
 		const cached: any = {};
 
+		let prepared = false;
 		const client = createClient({
 			...options,
 			cache: {
@@ -84,7 +136,11 @@ describe('client', () => {
 				}),
 				trySet: (): boolean => false,
 				restore: jest.fn(),
-				stringify: jest.fn()
+				stringify: jest.fn(),
+				prepareQuery: (q: string): string => {
+					prepared = true;
+					return q;
+				}
 			}
 		});
 
@@ -98,6 +154,7 @@ describe('client', () => {
 		});
 		expect(result).toBeTruthy();
 		expect(result.data).toBe(cached);
+		expect(prepared).toBe(true);
 	});
 
 	it('skips cache if no data', async () => {
