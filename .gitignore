@@ -6,3 +6,6 @@ yarn-error.log
 coverage
 lib
 tsconfig.tsbuildinfo
+
+packages/*/package-lock.json
+packages/*/yarn.lock

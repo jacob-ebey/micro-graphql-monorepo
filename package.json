@@ -26,7 +26,6 @@
     "jest": "jest --config jest.config.json --no-cache --coverage",
     "test": "run-s build:lib jest",
     "lint": "eslint packages/*/src/**/*.ts packages/*/test/**/*.ts packages/*/test/**/*.tsx packages/next-example/**/*.tsx",
-    "postinstall": "echo lerna bootstrap && echo lerna link",
     "ver": "lerna version --yes"
   },
   "devDependencies": {
