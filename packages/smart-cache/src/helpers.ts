@@ -3,8 +3,6 @@ import { DocumentNode, visit, Kind } from 'graphql';
 
 const isInlineFragment = (node: any): boolean => node.kind === Kind.INLINE_FRAGMENT;
 
-const useConnections = true;
-
 const hasField = (fieldName: any) => (set: any): any => set.some(({
 	alias, name
 }: any) => (alias || name).value === fieldName);

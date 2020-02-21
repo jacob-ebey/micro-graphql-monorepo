@@ -8,7 +8,8 @@ import {
 // import gql from 'graphql-tag';
 
 import { IMicroGraphQLCache, IMicroGraphQLCacheResult } from '@micro-graphql/core';
-import { print, parse as gql } from 'graphql';
+import { print } from 'graphql/language/printer';
+import { parse as gql } from 'graphql/language/parser';
 
 import { addRequiredFields } from './helpers';
 
