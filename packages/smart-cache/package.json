@@ -1,6 +1,6 @@
 {
   "name": "@micro-graphql/smart-cache",
-  "version": "0.0.6",
+  "version": "0.1.0",
   "license": "MIT",
   "main": "lib/index.js",
   "typings": "lib/index.d.ts",
@@ -13,11 +13,11 @@
   },
   "dependencies": {
     "graphql": "^14.6.0",
-    "graphql-tag": "^2.10.3",
-    "graphql-norm": "^1.3.6"
+    "graphql-norm": "^1.3.6",
+    "graphql-tag": "^2.10.3"
   },
   "devDependencies": {
-    "@micro-graphql/core": "^0.0.6",
+    "@micro-graphql/core": "^0.1.0",
     "@types/graphql": "^14.5.0",
     "typescript": "^3.7.5"
   },
