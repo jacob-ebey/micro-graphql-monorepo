@@ -31,22 +31,25 @@ export function useQuery<TData, TVariables>(
 	const [, setRerender] = React.useState<{}>({});
 	const initialRenderRef = React.useRef(true);
 
+	const preparedQuery = React.useMemo(() => client.cache.prepareQuery(query), [client, query]);
+
 	const { skip, skipCache } = options;
 
 	initialRenderRef.current = true;
 	const dataRef = React.useRef<TData | undefined>(undefined);
 	const unsubscribe = React.useMemo(
 		() => client.cache.subscribe<TData, TVariables>(
-			query,
+			preparedQuery,
 			variables,
 			(data) => {
 				dataRef.current = data;
+				/* istanbul ignore next */
 				if (!initialRenderRef.current) {
 					setRerender({});
 				}
 			}
 		),
-		[client, query, variables, setRerender]
+		[client, preparedQuery, variables, setRerender]
 	);
 
 	initialRenderRef.current = false;

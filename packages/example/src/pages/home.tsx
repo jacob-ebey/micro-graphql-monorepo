@@ -1,13 +1,14 @@
 import * as React from 'react';
 import gql from 'graphql-tag';
+import * as merge from 'deepmerge';
 
-import { useQuery } from '@micro-graphql/hooks';
+import { useClientQuery, useQuery } from '@micro-graphql/hooks';
 
 import { FilmOverview } from '../components/film-overview';
 import { FilmSelector } from '../components/film-selector';
 
 const HOME_QUERY = gql`
-  query TestQuery($id: ID) {
+  query Home($id: ID) {
     film(id: $id) {
 			id
       ...FilmOverview_film
@@ -23,21 +24,56 @@ const HOME_QUERY = gql`
 	${FilmSelector.fragments.films}
 `;
 
+const HOME_CLIENT_QUERY = gql`
+	query HomeClient {
+		home {
+			selectedEpisode
+		}
+	}
+`;
+
+interface IHomeClientQuery {
+	home: {
+		__typename: 'Home';
+		selectedEpisode: string;
+	};
+}
+
 export const Home: React.FC = () => {
-	const [episodeId, setEpisodeId] = React.useState('ZmlsbXM6MQ==');
+	const [clientData, setClientData] = useClientQuery<IHomeClientQuery, unknown>(
+		HOME_CLIENT_QUERY,
+		undefined,
+		{
+			home: {
+				__typename: 'Home',
+				selectedEpisode: 'ZmlsbXM6MQ=='
+			}
+		}
+	);
+
 	const handleEpisodeChanged = React.useCallback(
 		(event: React.ChangeEvent<HTMLSelectElement>): void => {
 			event.preventDefault();
-			setEpisodeId(`${event.target.value}`);
+
+			setClientData(
+				merge(clientData, {
+					home: {
+						selectedEpisode: event.target.value
+					}
+				})
+			);
 		},
-		[setEpisodeId]
+		[clientData, setClientData]
 	);
 
 	const { data, errors, loading } = useQuery(
 		HOME_QUERY,
-		React.useMemo(() => ({
-			id: episodeId
-		}), [episodeId])
+		React.useMemo(() => clientData && ({
+			id: clientData.home.selectedEpisode
+		}), [clientData]),
+		{
+			skip: !clientData
+		}
 	);
 
 	return React.useMemo(() => (
@@ -56,7 +92,7 @@ export const Home: React.FC = () => {
 				<FilmSelector
 					loading={loading}
 					films={data && data.allFilms && data.allFilms.films}
-					selected={episodeId}
+					selected={clientData.home.selectedEpisode}
 					onChange={handleEpisodeChanged}
 				/>
 
