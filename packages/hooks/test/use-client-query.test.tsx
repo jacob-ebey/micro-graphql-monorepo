@@ -20,7 +20,7 @@ import {
 } from '../src';
 
 const query = gql`
-	query HomeClient {
+	query UseClientTest {
 		home {
 			selectedEpisode
 		}

@@ -68,7 +68,7 @@ const microClient = createClient({
 });
 
 const HOME_QUERY = gql`
-  query TestQuery($id: ID) {
+  query ExampleQuery($id: ID) {
     film(id: $id) {
       id
       title

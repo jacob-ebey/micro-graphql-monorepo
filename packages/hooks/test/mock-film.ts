@@ -2,7 +2,7 @@
 import gql from 'graphql-tag';
 
 export const query = gql`
-  query MockFilmQuery($filmID: ID) {
+  query HooksMockFilmQuery($filmID: ID) {
     film(filmID: $filmID) {
       id
       title

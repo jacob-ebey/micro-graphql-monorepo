@@ -31,6 +31,14 @@ const subQuery = gql`
 	}
 `;
 
+const unrelatedQuery = gql`
+query TestNoFulfilledQuery {
+	rofl {
+		name
+	}
+}
+`;
+
 interface IVariables {
 	id: string;
 }
@@ -157,14 +165,6 @@ describe('smart-cache', () => {
 	});
 
 	it('skips callback if query not fulfilled', () => {
-		const unrelatedQuery = gql`
-			query TestNoFulfilledQuery {
-				rofl {
-					name
-				}
-			}
-		`;
-
 		let called = 0;
 
 		const unsubscribe = cache.subscribe<IExpected, IVariables>(
@@ -183,14 +183,6 @@ describe('smart-cache', () => {
 	});
 
 	it('skips callback if query not fulfilled and existing data', () => {
-		const unrelatedQuery = gql`
-			query TestNoFulfilledQuery {
-				rofl {
-					name
-				}
-			}
-		`;
-
 		cache.writeQuery(cache.prepareQuery(unrelatedQuery), {}, {
 			rofl: {
 				__typename: 'Rofl',

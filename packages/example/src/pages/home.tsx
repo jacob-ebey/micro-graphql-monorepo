@@ -4,8 +4,8 @@ import * as merge from 'deepmerge';
 
 import { useClientQuery, useQuery } from '@micro-graphql/hooks';
 
-import { FilmOverview } from '../components/film-overview';
-import { FilmSelector } from '../components/film-selector';
+import { FilmOverview, IFilmOverviewFilm } from '../components/film-overview';
+import { FilmSelector, IFilmSelectorFilm } from '../components/film-selector';
 
 const HOME_QUERY = gql`
   query Home($id: ID) {
@@ -23,6 +23,21 @@ const HOME_QUERY = gql`
 	${FilmOverview.fragments.film}
 	${FilmSelector.fragments.films}
 `;
+
+interface IHomeQuery {
+	film?: IFilmOverviewFilm & {
+		id: string;
+	};
+	allFilms: {
+		films: Array<IFilmSelectorFilm & {
+			id: string;
+		}>;
+	};
+}
+
+interface IHomeQueryVariables {
+	id: string;
+}
 
 const HOME_CLIENT_QUERY = gql`
 	query HomeClient {
@@ -66,7 +81,7 @@ export const Home: React.FC = () => {
 		[clientData, setClientData]
 	);
 
-	const { data, errors, loading } = useQuery(
+	const { data, errors, loading } = useQuery<IHomeQuery, IHomeQueryVariables>(
 		HOME_QUERY,
 		React.useMemo(() => clientData && ({
 			id: clientData.home.selectedEpisode

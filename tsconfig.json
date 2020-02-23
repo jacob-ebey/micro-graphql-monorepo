@@ -7,7 +7,8 @@
     "paths": {
       "@micro-graphql/*": [
         "./core/*/src",
-        "./hooks/*/src"
+        "./hooks/*/src",
+        "./example/*/src"
       ]
     },
     "typeRoots": ["node_modules/@types"]
