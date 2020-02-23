@@ -75,13 +75,18 @@ export function usePromise<T>(
 
 	React.useEffect(() => {
 		if (!promise) {
-			dispatch({ type: UsePromiseState.idle });
+			if (state !== UsePromiseState.idle) {
+				dispatch({ type: UsePromiseState.idle });
+			}
+
 			return noop;
 		}
 
 		let canceled = false;
 
-		dispatch({ type: UsePromiseState.pending });
+		if (state !== UsePromiseState.pending) {
+			dispatch({ type: UsePromiseState.pending });
+		}
 
 		promise.then(
 			res => !canceled && dispatch({
@@ -97,7 +102,7 @@ export function usePromise<T>(
 		return (): void => {
 			canceled = true;
 		};
-	}, deps);
+	}, [...deps]);
 
 	return [result as T | undefined, error, state];
 }
