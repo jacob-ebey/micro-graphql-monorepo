@@ -102,7 +102,7 @@ export function usePromise<T>(
 		return (): void => {
 			canceled = true;
 		};
-	}, [...deps]);
+	}, deps);
 
 	return [result as T | undefined, error, state];
 }
