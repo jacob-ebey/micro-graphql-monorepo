@@ -20,7 +20,7 @@ import {
 import { query, variables, response } from './mock-film';
 
 // eslint-disable-next-line max-len
-type RenderFunc = () => RenderHookResult<unknown, UseMutationResult<unknown, unknown>>;
+type RenderFunc = () => RenderHookResult<unknown, UseMutationResult<unknown>>;
 
 describe('use-mutation', () => {
 	const expected = JSON.parse(response);
@@ -44,7 +44,7 @@ describe('use-mutation', () => {
 			});
 
 			// eslint-disable-next-line max-len
-			render = (): RenderHookResult<unknown, UseMutationResult<unknown, unknown>> => renderHook(
+			render = (): RenderHookResult<unknown, UseMutationResult<unknown>> => renderHook(
 				() => useMutation(query, variables),
 				{
 					wrapper: ({ children }) => (

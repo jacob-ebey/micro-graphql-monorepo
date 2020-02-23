@@ -18,12 +18,10 @@ A tiny, simple to use GraphQL client with SSR support.
 
 ```jsx
 const { data, errors, loading } = useQuery(
+  YOUR_QUERY,
   React.useMemo(
     () => ({
-      query: YOUR_QUERY,
-      variables: {
-        example: variable
-      }
+      example: variable
     }),
     [variable]
   )
@@ -34,12 +32,10 @@ const { data, errors, loading } = useQuery(
 
 ```jsx
 const [{ data, errors, loading }, mutate] = useMutation(
+  YOUR_MUTATION,
   React.useMemo(
     () => ({
-      query: YOUR_MUTATION,
-      variables: {
-        example: variable
-      }
+      example: variable
     }),
     [variable]
   )

@@ -17,7 +17,7 @@ export interface IUseMutationResult<TData> extends IMicroGraphQLResult<TData> {
 	networkError?: Error;
 }
 
-export type UseMutationResult<TData, TQueryVariables> = [
+export type UseMutationResult<TData> = [
 	IUseMutationResult<TData>,
 	() => void
 ];
@@ -26,7 +26,7 @@ export type UseMutationResult<TData, TQueryVariables> = [
 export function useMutation<TData, TVariables>(
 	mutation: DocumentNode,
 	variables: TVariables | undefined
-): UseMutationResult<TData, TVariables> {
+): UseMutationResult<TData> {
 	const client = useClient();
 
 	// eslint-disable-next-line max-len
