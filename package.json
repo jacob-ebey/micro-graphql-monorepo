@@ -24,7 +24,7 @@
     "jest": "jest --config jest.config.json --no-cache --coverage",
     "test": "run-s build:lib jest",
     "lint": "eslint packages/*/src/**/*.ts packages/*/test/**/*.ts packages/*/test/**/*.tsx packages/next-example/**/*.tsx",
-    "ver": "lerna version"
+    "pub": "yarn build && lerna publish"
   },
   "devDependencies": {
     "@testing-library/react-hooks": "^3.2.1",

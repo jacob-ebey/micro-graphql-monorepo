@@ -177,11 +177,10 @@ export default App;
 
 ## Contributors
 
-The release process is currently manual and is done in three steps:
+The release process is currently manual and is done by running:
 
-- Build packages:
-  ```yarn build:lib```
-- Version the packages:
-  ```yarn ver```
-- In the `core` and `hooks` packages, use npm to publish the new versions:
-  ```npm publish```
+```bash
+> yarn pub
+```
+
+This will build, version, tag and publish the packages to npm.
