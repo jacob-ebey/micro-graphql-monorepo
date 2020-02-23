@@ -1,7 +1,7 @@
 {
   "private": true,
   "name": "@micro-graphql/next-example",
-  "version": "0.2.0-alpha.0",
+  "version": "0.2.0",
   "main": "index.js",
   "license": "MIT",
   "scripts": {
@@ -11,8 +11,8 @@
   },
   "dependencies": {
     "@micro-graphql/core": "^0.2.0-alpha.0",
-    "@micro-graphql/example": "^0.2.0-alpha.0",
-    "@micro-graphql/hooks": "^0.2.0-alpha.0",
+    "@micro-graphql/example": "^0.2.0",
+    "@micro-graphql/hooks": "^0.2.0",
     "isomorphic-fetch": "^2.2.1",
     "next": "^9.2.1",
     "react": "^16.12.0",
