@@ -157,17 +157,6 @@ const App = () => (
 export default App;
 ```
 
-## Smart Cache
-
-The @micro-graphql/smart-cache package normalizes responses to help
-reduce the number of subsequent requests that are made.
-
-The `__typename` field will be automatically added to your quries
-when using this cache as it's a requirement of the cache.
-
-Plans to add "field pruning" (the process of stripping out fields
-for queries that already exist in the cache) are being flushed out.
-
 ## Contributors
 
 The release process is currently manual and is done in three steps:
