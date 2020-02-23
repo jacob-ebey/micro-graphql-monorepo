@@ -1,7 +1,7 @@
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import * as React from 'react';
+import gql from 'graphql-tag';
 
-import { frag } from '@micro-graphql/core';
 import { FFC } from '@micro-graphql/hooks';
 
 export interface IFilmOverviewFilm {
@@ -27,7 +27,7 @@ export const FilmOverview: FFC<IFilmOverviewProps> = ({ film }) => (
 );
 
 FilmOverview.fragments = {
-	film: frag`
+	film: gql`
 		fragment FilmOverview_film on Film {
 			title
 			episodeID

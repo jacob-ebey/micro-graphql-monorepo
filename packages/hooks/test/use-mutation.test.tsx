@@ -1,90 +1,76 @@
 /* eslint-disable import/no-extraneous-dependencies */
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 import * as React from 'react';
-import { renderHook, act } from '@testing-library/react-hooks';
+import { renderHook, RenderHookResult, act } from '@testing-library/react-hooks';
 import 'jest-fetch-mock';
 
 import {
 	createCache,
 	createClient,
-	IMicroGraphQLClient,
-	IMicroGraphQLConfig,
-	IMicroGraphQLResult
+	IMicroGraphQLClient
 } from '@micro-graphql/core';
 
 import {
 	// eslint-disable-next-line @typescript-eslint/no-unused-vars
 	MicroGraphQLProvider,
-	UseMutationResult,
-	useMutation
+	useMutation,
+	UseMutationResult
 } from '../src';
 
+import { query, variables, response } from './mock-film';
+
+// eslint-disable-next-line max-len
+type RenderFunc = () => RenderHookResult<unknown, UseMutationResult<unknown, unknown>>;
+
 describe('use-mutation', () => {
-	const mutation = `
-		query TestMutation($id: ID) {
-			film: deleteFilm(filmID: $id) {
-				title
-			}
-		}
-	`;
+	const expected = JSON.parse(response);
 
-	const variables = { id: 1 };
+	describe('client', () => {
+		let client: IMicroGraphQLClient;
+		let render: RenderFunc;
+		let resolve: () => void;
+		beforeEach(() => {
+			global.fetch.resetMocks();
+			global.fetch.mockResponse(() => new Promise(done => {
+				resolve = (): void => {
+					done(response);
+				};
+			}));
 
-	interface IQueryResult {
-		film: {
-			title: string;
-		};
-	}
+			client = createClient({
+				cache: createCache(),
+				fetch: global.fetch,
+				url: 'https://swapi-graphql.netlify.com/.netlify/functions/index'
+			});
 
-	const validateResult = (result?: IMicroGraphQLResult<IQueryResult>): void => {
-		expect(result).toBeTruthy();
-		expect(result!.data).toBeTruthy();
-		expect(result!.data!.film).toBeTruthy();
-		expect(result!.data!.film.title).toBe('A New Hope');
-	};
-
-	let options: IMicroGraphQLConfig;
-	let client: IMicroGraphQLClient;
-	let wrapper: (provided?: IMicroGraphQLClient) => React.FC;
-
-	beforeEach(() => {
-		global.fetch.resetMocks();
-		global.fetch.mockResponse(`
-			{"data":{"film":{"title":"A New Hope"}}}
-		`);
-
-		options = {
-			fetch: global.fetch,
-			url: 'https://swapi-graphql.netlify.com/.netlify/functions/index',
-			cache: createCache()
-		};
-		client = createClient(options);
-		wrapper = (provided?: IMicroGraphQLClient) => ({
-			children
-		}: React.PropsWithChildren<{}>): React.ReactElement => (
-			<MicroGraphQLProvider client={provided || client}>{children}</MicroGraphQLProvider>
-		);
-	});
-
-	it('can do mutation', async () => {
-		const {
-			result,
-			waitForNextUpdate
-		} = renderHook<unknown, UseMutationResult<IQueryResult, unknown>>(
-			() => useMutation<IQueryResult, {}>(React.useMemo(() => ({
-				query: mutation,
-				variables
-			}), [])),
-			{ wrapper: wrapper() }
-		);
-
-		expect(result.current[0].loading).toBe(false);
-
-		act(() => {
-			result.current[1]();
+			// eslint-disable-next-line max-len
+			render = (): RenderHookResult<unknown, UseMutationResult<unknown, unknown>> => renderHook(
+				() => useMutation(query, variables),
+				{
+					wrapper: ({ children }) => (
+						<MicroGraphQLProvider client={client}>
+							{children}
+						</MicroGraphQLProvider>
+					)
+				}
+			);
 		});
 
-		await waitForNextUpdate();
+		it('can do mutation', async () => {
+			const wrapper = render();
+			expect(wrapper.result.current[0].loading).toBe(false);
 
-		validateResult(result.current[0]);
+			act(() => wrapper.result.current[1]());
+
+			expect(wrapper.result.current[0].loading).toBe(true);
+
+			resolve();
+			await wrapper.waitForNextUpdate();
+			expect(wrapper.result.current[0].loading).toBe(false);
+			expect(wrapper.result.current[0].data).toEqual(expected.data);
+			expect(global.fetch.mock.calls.length).toBe(1);
+
+			wrapper.unmount();
+		});
 	});
 });

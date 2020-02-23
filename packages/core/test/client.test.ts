@@ -1,264 +1,148 @@
-/* eslint-disable import/no-extraneous-dependencies */
+// eslint-disable-next-line import/no-extraneous-dependencies
 import 'jest-fetch-mock';
 
 import {
 	createCache,
 	createClient,
-	IMicroGraphQLResult,
-	IMicroGraphQLCacheResult,
-	IMicroGraphQLConfig
+	IMicroGraphQLClient,
+	IMicroGraphQLResult
 } from '../src';
 
+import { query, variables, response } from './mock-film';
+
 describe('client', () => {
-	const query = `
-    query TestQuery($id: ID) {
-      film(filmID: $id) {
-        title
-      }
-    }
-  `;
-
-	const variables = { id: 1 };
-
-	interface IQueryResult {
-		film: {
-			title: string;
-		};
-	}
-
-	const validateResult = (result?: IMicroGraphQLResult<IQueryResult>): void => {
-		expect(result).toBeTruthy();
-		expect(result!.data).toBeTruthy();
-		expect(result!.data!.film).toBeTruthy();
-		expect(result!.data!.film.title).toBe('A New Hope');
-	};
-
-	let options: IMicroGraphQLConfig;
-	beforeEach(() => {
-		global.fetch.resetMocks();
-		global.fetch.mockResponse(`
-			{"data":{"film":{"title":"A New Hope"}}}
-		`);
-
-		options = {
-			fetch: global.fetch,
-			url: 'https://swapi-graphql.netlify.com/.netlify/functions/index',
-			cache: createCache()
-		};
-	});
-
-	it('can return cached result with prepare query', async () => {
-		// eslint-disable-next-line @typescript-eslint/no-explicit-any
-		const cached: any = {};
-
-		const client = createClient({
-			...options,
-			cache: {
-				tryGet: <TValue>(): IMicroGraphQLCacheResult<TValue> => ({
-					success: true,
-					data: cached
-				}),
-				trySet: (): boolean => false,
-				restore: jest.fn(),
-				stringify: jest.fn(),
-				prepareQuery: (q: string): string => q
-			}
-		});
-
-		const result = await client.query<IQueryResult, {}>(query, {
-			variables
-		});
-		expect(result).toBeTruthy();
-		expect(result.data).toBe(cached);
-	});
-
-	it('can skip cached result with prepare query', async () => {
-		// eslint-disable-next-line @typescript-eslint/no-explicit-any
-		const cached: any = {};
-
-		const client = createClient({
-			...options,
-			cache: {
-				tryGet: <TValue>(): IMicroGraphQLCacheResult<TValue> => ({
-					success: true,
-					data: cached
-				}),
-				trySet: (): boolean => false,
-				restore: jest.fn(),
-				stringify: jest.fn(),
-				prepareQuery: (q: string): string => q
-			}
-		});
-
-		const result = await client.query<IQueryResult, {}>(query, {
-			variables,
-			skipCache: true
-		});
-		expect(result).toBeTruthy();
-	});
-
-	it('can return cached result', async () => {
-		// eslint-disable-next-line @typescript-eslint/no-explicit-any
-		const cached: any = {};
-
-		const client = createClient({
-			...options,
-			cache: {
-				tryGet: <TValue>(): IMicroGraphQLCacheResult<TValue> => ({
-					success: true,
-					data: cached
-				}),
-				trySet: (): boolean => false,
-				restore: jest.fn(),
-				stringify: jest.fn(),
-				prepareQuery: (q: string): string => q
-			}
-		});
-
-		const result = await client.query<IQueryResult, {}>(query, {
-			variables
-		});
-		expect(result).toBeTruthy();
-		expect(result.data).toBe(cached);
-	});
-
-	it('can get cached result when subscribing', async () => {
-		// eslint-disable-next-line @typescript-eslint/no-explicit-any
-		const cached: any = {};
-
-		let prepared = false;
-		const client = createClient({
-			...options,
-			cache: {
-				tryGet: <TValue>(): IMicroGraphQLCacheResult<TValue> => ({
-					success: true,
-					data: cached
-				}),
-				trySet: (): boolean => false,
-				restore: jest.fn(),
-				stringify: jest.fn(),
-				prepareQuery: (q: string): string => {
-					prepared = true;
-					return q;
-				}
-			}
-		});
-
-		// eslint-disable-next-line @typescript-eslint/no-explicit-any
-		let result: any;
-		client.subscribe<IQueryResult, {}>({
-			query,
-			variables
-		}, (res) => {
-			result = res;
-		});
-		expect(result).toBeTruthy();
-		expect(result.data).toBe(cached);
-		expect(prepared).toBe(true);
-	});
-
 	it('skips cache if no data', async () => {
 		global.fetch.resetMocks();
-		global.fetch.mockResponse(`
-			{}
-		`);
-		const client = createClient(options);
+		global.fetch.mockResponse('{}');
 
-		const result = await client.query<IQueryResult, {}>(query, {
-			variables
-		});
-		expect(result.data).toBeUndefined();
-		expect(client.cache!.tryGet(query, variables).success).toBe(false);
-	});
-
-	it('can make query', async () => {
-		const client = createClient(options);
-
-		const result = await client.query<IQueryResult, {}>(query, {
-			variables
-		});
-		validateResult(result);
-	});
-
-	it('can make ssr query', async () => {
-		const client = createClient({ ...options, ssr: true });
-
-		const result = client.query<IQueryResult, {}>(query, {
-			variables
-		});
-
-		await client.resolveQueries();
-
-		validateResult(await result);
-	});
-
-	it('can set provided cache', async () => {
 		const client = createClient({
-			...options,
-			cache: createCache()
+			cache: createCache(),
+			fetch: global.fetch,
+			url: 'https://swapi-graphql.netlify.com/.netlify/functions/index'
 		});
 
-		const result = await client.query<IQueryResult, {}>(query, {
-			variables
-		});
-		validateResult(result);
+		await client.query(query, variables);
 
-		const secondResult = await client.query<IQueryResult, {}>(query, {
-			variables
-		});
-		expect(secondResult.data).toBe(result.data);
+		const data = client.cache.readQuery(query, variables);
+		expect(data).toBeUndefined();
 	});
 
-	it('can skip cache', async () => {
-		const client = createClient({
-			...options,
-			cache: createCache()
+	describe('query', () => {
+		const expected = JSON.parse(response);
+
+		let client: IMicroGraphQLClient;
+		let promise: Promise<IMicroGraphQLResult<unknown>>;
+		beforeEach(() => {
+			global.fetch.resetMocks();
+			global.fetch.mockResponse(response);
+
+			client = createClient({
+				cache: createCache(),
+				fetch: global.fetch,
+				url: 'https://swapi-graphql.netlify.com/.netlify/functions/index'
+			});
+
+			promise = client.query(query, variables);
 		});
 
-		const result = await client.query<IQueryResult, {}>(query, {
-			variables
+		it('can query', async () => {
+			const result = await promise;
+			expect(result).toEqual(expected);
+			expect(global.fetch.mock.calls.length).toBe(1);
 		});
-		validateResult(result);
 
-		const secondResult = await client.query<IQueryResult, {}>(query, {
-			skipCache: true,
-			variables
+		it('can use cache', async () => {
+			const result = await promise;
+			expect(result).toEqual(expected);
+			expect(global.fetch.mock.calls.length).toBe(1);
+
+			const secondResult = await client.query(query, variables);
+			expect(secondResult).toEqual(expected);
+			expect(global.fetch.mock.calls.length).toBe(1);
 		});
-		expect(secondResult.data).not.toBe(result.data);
-		expect(secondResult.data).toEqual(result.data);
+
+		it('can skip cache', async () => {
+			const result = await promise;
+			expect(result).toEqual(expected);
+			expect(global.fetch.mock.calls.length).toBe(1);
+
+			const secondResult = await client.query(query, variables, { skipCache: true });
+			expect(secondResult).toEqual(expected);
+			expect(global.fetch.mock.calls.length).toBe(2);
+		});
+
+		it('stores in cache', async () => {
+			await promise;
+			const data = client.cache.readQuery(query, variables);
+			expect(data).toEqual(expected.data);
+		});
 	});
 
-	it('can receive subscription value', async () => {
-		const client = createClient({
-			...options,
-			cache: createCache()
+	describe('query ssr', () => {
+		const expected = JSON.parse(response);
+
+		let client: IMicroGraphQLClient;
+		beforeEach(() => {
+			global.fetch.resetMocks();
+			global.fetch.mockResponse(response);
+
+			client = createClient({
+				cache: createCache(),
+				fetch: global.fetch,
+				url: 'https://swapi-graphql.netlify.com/.netlify/functions/index',
+				ssr: true
+			});
+
+			client.query(query, variables);
 		});
 
-		let subscriptionCount = 0;
-		let dataFromSubscription: IMicroGraphQLResult<IQueryResult>;
-		const unsubscribe = client.subscribe<IQueryResult, {}>(
-			{ query, variables },
-			data => {
-				dataFromSubscription = data;
-				subscriptionCount += 1;
-			}
-		);
+		it('can resolve queries', async () => {
+			await client.resolveQueries();
 
-		const result = await client.query<IQueryResult, {}>(query, {
-			variables
+			const result = await client.query(query, variables);
+			expect(result).toEqual(expected);
+			expect(global.fetch.mock.calls.length).toBe(1);
 		});
-		validateResult(result);
-		validateResult(dataFromSubscription!);
+	});
 
-		unsubscribe();
+	describe('mutate', () => {
+		const expected = JSON.parse(response);
 
-		const secondResult = await client.query<IQueryResult, {}>(query, {
-			skipCache: true,
-			variables
+		let client: IMicroGraphQLClient;
+		let promise: Promise<IMicroGraphQLResult<unknown>>;
+		beforeEach(() => {
+			global.fetch.resetMocks();
+			global.fetch.mockResponse(response);
+
+			client = createClient({
+				cache: createCache(),
+				fetch: global.fetch,
+				url: 'https://swapi-graphql.netlify.com/.netlify/functions/index'
+			});
+
+			promise = client.mutate(query, variables);
 		});
-		expect(secondResult.data).not.toBe(result.data);
-		expect(secondResult.data).toEqual(result.data);
 
-		expect(subscriptionCount).toBe(2);
+		it('can mutate', async () => {
+			const result = await promise;
+			expect(result).toEqual(expected);
+			expect(global.fetch.mock.calls.length).toBe(1);
+		});
+
+		it('can mutate multiple times', async () => {
+			const result = await promise;
+			expect(result).toEqual(expected);
+			expect(global.fetch.mock.calls.length).toBe(1);
+
+			const secondResult = await client.mutate(query, variables);
+			expect(secondResult).toEqual(expected);
+			expect(global.fetch.mock.calls.length).toBe(2);
+		});
+
+		it('stores in cache', async () => {
+			await promise;
+			const data = client.cache.readQuery(query, variables);
+			expect(data).toEqual(expected.data);
+		});
 	});
 });

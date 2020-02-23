@@ -1,5 +1,4 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-
 /* eslint-disable import/no-extraneous-dependencies */
 import * as React from 'react';
 import { renderHook } from '@testing-library/react-hooks';
@@ -8,8 +7,7 @@ import 'jest-fetch-mock';
 import {
 	createCache,
 	createClient,
-	IMicroGraphQLClient,
-	queryKeyError
+	IMicroGraphQLClient
 } from '@micro-graphql/core';
 
 import {
@@ -17,27 +15,12 @@ import {
 	MicroGraphQLProvider,
 	useClient,
 	MicroGraphQLContext,
-	noClientError,
-	IMicroGraphQLContextValue
+	noClientError
 } from '../src';
 
+import { query, variables, response } from './mock-film';
+
 describe('context', () => {
-	const query = `
-		query TestQuery($id: ID) {
-			film(filmID: $id) {
-				title
-			}
-		}
-	`;
-
-	const variables = { id: 1 };
-
-	interface IQueryResult {
-		film: {
-			title: string;
-		};
-	}
-
 	// eslint-disable-next-line @typescript-eslint/no-explicit-any
 	let options: any;
 	let client: IMicroGraphQLClient;
@@ -45,9 +28,7 @@ describe('context', () => {
 
 	beforeEach(() => {
 		global.fetch.resetMocks();
-		global.fetch.mockResponse(`
-			{"data":{"film":{"title":"A New Hope"}}}
-		`);
+		global.fetch.mockResponse(response);
 
 		options = {
 			fetch: global.fetch,
@@ -64,30 +45,36 @@ describe('context', () => {
 
 	it('context throws errors for defaults', async () => {
 		const { result } = renderHook(
-			() => React.useContext<IMicroGraphQLContextValue>(MicroGraphQLContext)
+			() => React.useContext<IMicroGraphQLClient>(MicroGraphQLContext)
 		);
 
-		expect(() => result.current.client.cache.prepareQuery('')).toThrow(noClientError);
-		expect(() => result.current.client.cache.restore('')).toThrow(noClientError);
-		expect(() => result.current.client.cache.stringify()).toThrow(noClientError);
-		expect(() => result.current.client.cache.tryGet('', {})).toThrow(noClientError);
-		expect(() => result.current.client.cache.trySet('', {}, {})).toThrow(noClientError);
+		expect(() => result.current.cache.prepareQuery(query)).toThrow(noClientError);
+		expect(() => result.current.cache.restore('')).toThrow(noClientError);
+		expect(() => result.current.cache.stringify()).toThrow(noClientError);
+		expect(() => result.current.cache.writeQuery(query, variables, {})).toThrow(noClientError);
+		expect(() => result.current.cache.readQuery(query, variables)).toThrow(noClientError);
 
-		expect(() => result.current.requestQuery({} as any)).toThrow(noClientError);
-		expect(() => result.current.client.subscribe({} as any, () => {
+		expect(() => result.current.cache.subscribe('' as any, {}, () => {
 			expect(true).toBe(false);
 		})).toThrow(noClientError);
 
 		let message: string | null = null;
 		try {
-			await result.current.client.query('');
+			await result.current.query(query, variables);
 		} catch (err) {
 			message = err.message;
 		}
 		expect(message).toBe(noClientError);
 
 		try {
-			await result.current.client.resolveQueries();
+			await result.current.mutate(query, variables);
+		} catch (err) {
+			message = err.message;
+		}
+		expect(message).toBe(noClientError);
+
+		try {
+			await result.current.resolveQueries();
 		} catch (err) {
 			message = err.message;
 		}
@@ -98,25 +85,5 @@ describe('context', () => {
 		const { result } = renderHook(() => useClient(), { wrapper: wrapper() });
 
 		expect(result.current).toBe(client);
-	});
-
-	it('throws for no key', () => {
-		renderHook(() => {
-			expect(() => {
-				const { requestQuery } = React.useContext(MicroGraphQLContext);
-				requestQuery({
-					query,
-					variables
-				});
-			}).toThrow(queryKeyError);
-		},
-		{
-			wrapper: wrapper(
-				createClient({
-					...options,
-					hash: () => null
-				})
-			)
-		});
 	});
 });

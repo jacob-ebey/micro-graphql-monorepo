@@ -1,9 +1,8 @@
 import * as React from 'react';
-
-import { IMicroGraphQLFragment } from '@micro-graphql/core';
+import { DocumentNode } from 'graphql/language/ast';
 
 export type FFC<P> = React.FC<P> & {
 	fragments: {
-		[key: string]: IMicroGraphQLFragment;
+		[key: string]: DocumentNode;
 	};
 };

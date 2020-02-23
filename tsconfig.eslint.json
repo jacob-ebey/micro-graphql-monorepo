@@ -5,8 +5,6 @@
 		"./packages/core/**/*.tsx",
 		"./packages/hooks/**/*.ts",
 		"./packages/hooks/**/*.tsx",
-		"./packages/smart-cache/**/*.ts",
-		"./packages/smart-cache/**/*.tsx",
 		"./packages/example/**/*.ts",
 		"./packages/example/**/*.tsx",
 		"./packages/cra-example/**/*.ts",

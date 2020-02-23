@@ -1,10 +1,10 @@
 import fetch from 'isomorphic-fetch';
 
 import {
+	createCache,
 	createClient,
 	IMicroGraphQLClient
 } from '@micro-graphql/core';
-import { createCache } from '@micro-graphql/smart-cache';
 
 export function newClient(): IMicroGraphQLClient {
 	const client = createClient({
