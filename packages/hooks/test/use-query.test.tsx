@@ -1,7 +1,7 @@
 /* eslint-disable import/no-extraneous-dependencies */
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import * as React from 'react';
-import { renderHook, RenderHookResult } from '@testing-library/react-hooks';
+import { act, renderHook, RenderHookResult } from '@testing-library/react-hooks';
 import 'jest-fetch-mock';
 
 import {
@@ -176,6 +176,32 @@ describe('use-query', () => {
 			expect(wrapper.result.current.loading).toBe(false);
 			expect(wrapper.result.current.data).toEqual(expected.data);
 			expect(global.fetch.mock.calls.length).toBe(2);
+
+			wrapper.unmount();
+		});
+
+		it('can recieve updates from cache', async () => {
+			const wrapper = render();
+			expect(wrapper.result.current.loading).toBe(true);
+
+			resolve();
+			await wrapper.waitForNextUpdate();
+			expect(wrapper.result.current.loading).toBe(false);
+			expect(wrapper.result.current.data).toEqual(expected.data);
+			expect(global.fetch.mock.calls.length).toBe(1);
+
+			const updatedData = {
+				film: {
+					...expected.data.film,
+					title: 'Updated Title'
+				}
+			};
+
+			act(() => client.cache.writeQuery(query, variables, updatedData));
+
+			expect(wrapper.result.current.loading).toBe(false);
+			expect(wrapper.result.current.data).toEqual(updatedData);
+			expect(global.fetch.mock.calls.length).toBe(1);
 
 			wrapper.unmount();
 		});
