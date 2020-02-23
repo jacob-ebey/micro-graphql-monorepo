@@ -18,15 +18,15 @@ A tiny, simple to use GraphQL client with SSR support.
 
 ```jsx
 const { data, errors, loading } = useQuery(
-  React.useMemo(
-    () => ({
-      query: YOUR_QUERY,
-      variables: {
-        example: variable
-      }
-    }),
-    [variable]
-  )
+	React.useMemo(
+		() => ({
+			query: YOUR_QUERY,
+			variables: {
+				example: variable
+			}
+		}),
+		[variable]
+	)
 );
 ```
 
@@ -34,15 +34,15 @@ const { data, errors, loading } = useQuery(
 
 ```jsx
 const [{ data, errors, loading }, mutate] = useMutation(
-  React.useMemo(
-    () => ({
-      query: YOUR_MUTATION,
-      variables: {
-        example: variable
-      }
-    }),
-    [variable]
-  )
+	React.useMemo(
+		() => ({
+			query: YOUR_MUTATION,
+			variables: {
+				example: variable
+			}
+		}),
+		[variable]
+	)
 );
 
 return <button onClick={mutate}>Run mutation</button>;
@@ -66,28 +66,28 @@ import { MicroGraphQLProvider, useQuery } from '@micro-graphql/hooks';
 import merge from 'deepmerge';
 
 const microClient = createClient({
-  fetch,
-  cache: createCache(),
-  url: "https://swapi-graphql.netlify.com/.netlify/functions/index"
+	fetch,
+	cache: createCache(),
+	url: "https://swapi-graphql.netlify.com/.netlify/functions/index"
 });
 
 const HOME_QUERY = gql`
-  query TestQuery($id: ID) {
-    film(id: $id) {
-      id
-      title
-    }
-    allFilms {
-      films {
-        id
-        title
-      }
-    }
-  }
+	query TestQuery($id: ID) {
+		film(id: $id) {
+			id
+			title
+		}
+		allFilms {
+			films {
+				id
+				title
+			}
+		}
+	}
 `;
 
 const Home = () => {
-  const [clientData, setClientData] = useClientQuery(
+	const [clientData, setClientData] = useClientQuery(
 		HOME_CLIENT_QUERY,
 		undefined,
 		{
@@ -113,63 +113,63 @@ const Home = () => {
 		[clientData, setClientData]
 	);
 
-  const { data, errors, loading } = useQuery(
-    HOME_QUERY
-    React.useMemo(
-      () => ({
-        id: clientData.home.selectedEpisode
-      }),
-      [clientData]
-    )
-  );
+	const { data, errors, loading } = useQuery(
+		HOME_QUERY
+		React.useMemo(
+			() => ({
+				id: clientData.home.selectedEpisode
+			}),
+			[clientData]
+		)
+	);
 
-  const selector =
-    data && data.allFilms && data.allFilms.films ? (
-      <select defaultValue={`${clientData.home.selectedEpisode}`} onChange={handleEpisodeChanged}>
-        {data.allFilms.films.map(({ title, id }) => (
-          <option key={id} value={`${id}`}>
-            {title || id}
-          </option>
-        ))}
-      </select>
-    ) : null;
+	const selector =
+		data && data.allFilms && data.allFilms.films ? (
+			<select defaultValue={`${clientData.home.selectedEpisode}`} onChange={handleEpisodeChanged}>
+				{data.allFilms.films.map(({ title, id }) => (
+					<option key={id} value={`${id}`}>
+						{title || id}
+					</option>
+				))}
+			</select>
+		) : null;
 
-  if (loading) {
-    return (
-      <React.Fragment>
-        {selector}
-        <h1>Loading........</h1>
-      </React.Fragment>
-    );
-  }
+	if (loading) {
+		return (
+			<React.Fragment>
+				{selector}
+				<h1>Loading........</h1>
+			</React.Fragment>
+		);
+	}
 
-  if (errors) {
-    return (
-      <React.Fragment>
-        {selector}
-        <h1>Errors...</h1>
-        <pre>
-          <code>{JSON.stringify(errors, null, 2)}</code>
-        </pre>
-      </React.Fragment>
-    );
-  }
+	if (errors) {
+		return (
+			<React.Fragment>
+				{selector}
+				<h1>Errors...</h1>
+				<pre>
+					<code>{JSON.stringify(errors, null, 2)}</code>
+				</pre>
+			</React.Fragment>
+		);
+	}
 
-  return (
-    <React.Fragment>
-      {selector}
-      <h1>Data!!!</h1>
-      <pre>
-        <code>{JSON.stringify(data, null, 2)}</code>
-      </pre>
-    </React.Fragment>
-  );
+	return (
+		<React.Fragment>
+			{selector}
+			<h1>Data!!!</h1>
+			<pre>
+				<code>{JSON.stringify(data, null, 2)}</code>
+			</pre>
+		</React.Fragment>
+	);
 };
 
 const App = () => (
-  <MicroGraphQLProvider client={microClient}>
-    <Home />
-  </MicroGraphQLProvider>
+	<MicroGraphQLProvider client={microClient}>
+		<Home />
+	</MicroGraphQLProvider>
 );
 
 export default App;
