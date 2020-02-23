@@ -1,6 +1,6 @@
 import * as React from 'react';
+import gql from 'graphql-tag';
 
-import { frag } from '@micro-graphql/core';
 import { FFC } from '@micro-graphql/hooks';
 
 export interface IFilmSelectorFilm {
@@ -41,7 +41,7 @@ export const FilmSelector: FFC<IFilmSelectorProps> = ({
 };
 
 FilmSelector.fragments = {
-	films: frag`
+	films: gql`
 		fragment FilmSelector_films on Film {
 			id
 			title

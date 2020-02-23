@@ -1,6 +1,6 @@
 import * as React from 'react';
+import gql from 'graphql-tag';
 
-import { gql } from '@micro-graphql/core';
 import { useQuery } from '@micro-graphql/hooks';
 
 import { FilmOverview } from '../components/film-overview';
@@ -10,15 +10,17 @@ const HOME_QUERY = gql`
   query TestQuery($id: ID) {
     film(id: $id) {
 			id
-      ${FilmOverview.fragments.film}
+      ...FilmOverview_film
     }
     allFilms {
       films {
 				id
-        ${FilmSelector.fragments.films}
+        ...FilmSelector_films
       }
     }
   }
+	${FilmOverview.fragments.film}
+	${FilmSelector.fragments.films}
 `;
 
 export const Home: React.FC = () => {
@@ -31,12 +33,12 @@ export const Home: React.FC = () => {
 		[setEpisodeId]
 	);
 
-	const { data, errors, loading } = useQuery(React.useMemo(() => ({
-		query: HOME_QUERY,
-		variables: {
+	const { data, errors, loading } = useQuery(
+		HOME_QUERY,
+		React.useMemo(() => ({
 			id: episodeId
-		}
-	}), [episodeId]));
+		}), [episodeId])
+	);
 
 	return React.useMemo(() => (
 		<section>

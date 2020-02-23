@@ -9,7 +9,7 @@ const hasField = (fieldName: any) => (set: any): any => set.some(({
 	alias, name
 }: any) => (alias || name).value === fieldName);
 
-export const createField = (name: string): any => ({
+const createField = (name: string): any => ({
 	kind: 'Field',
 	alias: undefined,
 	name: {
@@ -32,7 +32,7 @@ const excludeMetaFields = (node: any, _: any, parent: any): any => node.selectio
 	|| hasEdgesField(node.selections)
 	|| (!isInlineFragment(parent) && connectionFields.includes(parent.name.value));
 
-export function addRequiredFields(query: DocumentNode): any {
+export function addRequiredFields(query: DocumentNode): DocumentNode {
 	return visit(query, {
 		SelectionSet: (node, key, parent: any): any => {
 			if (parent

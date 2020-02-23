@@ -1,41 +1,49 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import * as React from 'react';
+import { DocumentNode } from 'graphql/language/ast';
 
 import {
-	IMicroGraphQLSubscriptionOptions
+	IMicroGraphQLResult
 } from '@micro-graphql/core';
 
 import {
-	MicroGraphQLContext,
-	IUseQueryResult
+	useClient
 } from './context';
 
-import { IUseQueryOptions, useQuery } from './use-query';
+import { usePromise, UsePromiseState } from './use-promise';
+
+export interface IUseMutationResult<TData> extends IMicroGraphQLResult<TData> {
+	loading: boolean;
+	networkError?: Error;
+}
 
 export type UseMutationResult<TData, TQueryVariables> = [
-	IUseQueryResult<TData>,
+	IUseMutationResult<TData>,
 	() => void
 ];
 
 // eslint-disable-next-line max-len
-export function useMutation<TData extends { [key: string]: any }, TQueryVariables extends { [key: string]: any }>(
-	options: IMicroGraphQLSubscriptionOptions<TQueryVariables>
-): UseMutationResult<TData, TQueryVariables> {
-	const { requestQuery } = React.useContext(MicroGraphQLContext);
+export function useMutation<TData, TVariables>(
+	mutation: DocumentNode,
+	variables: TVariables | undefined
+): UseMutationResult<TData, TVariables> {
+	const client = useClient();
 
-	const resultOptions = React.useMemo<IUseQueryOptions<TQueryVariables>>(() => ({
-		query: options.query,
-		variables: options.variables,
-		skip: true
-	}), [options]);
+	// eslint-disable-next-line max-len
+	const [promise, setPromise] = React.useState<Promise<IMicroGraphQLResult<TData>> | undefined>(undefined);
 
-	const result = useQuery<TData, TQueryVariables>(resultOptions);
+	const [result, error, state] = usePromise(promise, [promise]);
 
-	const mutate = React.useCallback(() => requestQuery({
-		query: options.query,
-		skipCache: true,
-		variables: options.variables
-	}), [requestQuery, options]);
+	const mutate = React.useCallback(() => {
+		setPromise(client.mutate(mutation, variables));
+	}, [mutation, variables, setPromise]);
 
-	return [result, mutate];
+	return [
+		{
+			...result,
+			loading: state === UsePromiseState.pending,
+			networkError: error
+		},
+		mutate
+	];
 }

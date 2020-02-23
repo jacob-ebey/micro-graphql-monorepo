@@ -1,173 +1,122 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-/* eslint-disable import/extensions */
+import { DocumentNode } from 'graphql/language/ast';
+import { print } from 'graphql/language/printer';
+import { GraphQLFormattedError } from 'graphql/error/formatError';
 
 import { IMicroGraphQLCache } from './cache';
 import { objectHash } from './hash';
 
-export interface IMicroGraphQLConfig {
-	cache: IMicroGraphQLCache;
-	url: string;
-	ssr?: boolean;
-	fetch(input: RequestInfo, init?: RequestInit | undefined): Promise<Response>;
-}
-
-export interface IMicroGraphQLError {
-	message: string;
-	path?: ReadonlyArray<string | number>;
-	extensions?: { [key: string]: unknown };
-}
-
 export interface IMicroGraphQLResult<TData> {
-	loading: boolean;
 	data?: TData;
-	errors?: IMicroGraphQLError[];
+	errors?: GraphQLFormattedError[];
 }
 
-export interface IMicroGraphQLQueryOptions<TQueryVariables extends { [key: string]: unknown }> {
+export interface IMicroGraphQLQueryOptions {
 	skipCache?: boolean;
-	variables?: TQueryVariables;
-}
-
-export interface IMicroGraphQLSubscriptionOptions<
-	TQueryVariables extends { [key: string]: unknown }
->
-	extends IMicroGraphQLQueryOptions<TQueryVariables> {
-	query: string;
 }
 
 export interface IMicroGraphQLClient {
 	cache: IMicroGraphQLCache;
-	ssr?: boolean;
-	// eslint-disable-next-line max-len
-	// eslint-disable-next-line @typescript-eslint/no-explicit-any
-	query<TData extends { [key: string]: any }, TQueryVariables extends { [key: string]: any }>(
-		query: string,
-		options?: IMicroGraphQLQueryOptions<TQueryVariables>
-	): Promise<IMicroGraphQLResult<TData>>;
-	// eslint-disable-next-line max-len
-	// eslint-disable-next-line @typescript-eslint/no-explicit-any
-	subscribe: <TData extends { [key: string]: any }, TQueryVariables extends { [key: string]: any }>(
-		options: IMicroGraphQLSubscriptionOptions<TQueryVariables>,
-		subscription: (data: IMicroGraphQLResult<TData>) => void
-	) => () => void;
 	resolveQueries(): Promise<void>;
+	query<TData, TVariables>(
+		query: DocumentNode,
+		variables?: TVariables,
+		options?: IMicroGraphQLQueryOptions
+	): Promise<IMicroGraphQLResult<TData>>;
+	mutate<TData, TVariables>(
+		mutation: DocumentNode,
+		variables?: TVariables
+	): Promise<IMicroGraphQLResult<TData>>;
 }
 
-export class MicroGraphQLKeyError extends Error {}
-
-export const queryKeyError = 'error creating a unique key for the query';
+export interface IMicroGraphQLClientConfig {
+	cache: IMicroGraphQLCache;
+	fetch(input: RequestInfo, init?: RequestInit | undefined): Promise<Response>;
+	ssr?: boolean;
+	url: string;
+}
 
 export function createClient({
-	url,
 	cache,
+	fetch,
 	ssr,
-	fetch
-}: IMicroGraphQLConfig): IMicroGraphQLClient {
-	const subscriptions = new Map<string, Array<(data: IMicroGraphQLResult<any> & {}) => void>>();
+	url
+}: IMicroGraphQLClientConfig): IMicroGraphQLClient {
+	const requests: { [key: string]: Promise<unknown> } = {};
 
-	const queries: { [key: string]: Promise<IMicroGraphQLResult<unknown>> } = {};
+	async function doRequest<TData, TVariables>(
+		query: DocumentNode,
+		variables?: TVariables
+	): Promise<IMicroGraphQLResult<TData>> {
+		const resultPromise = (async (): Promise<IMicroGraphQLResult<TData>> => {
+			const response = await fetch(url, {
+				method: 'post',
+				headers: {
+					'Content-Type': 'application/json'
+				},
+				body: JSON.stringify({
+					query: print(query),
+					variables
+				})
+			});
+
+			const json = (await response.json()) as IMicroGraphQLResult<TData>;
+
+			if (json.data) {
+				cache.writeQuery<TData, TVariables>(query, variables, json.data);
+			}
+
+			return json;
+		})();
+
+		if (ssr) {
+			requests[objectHash({ query, variables })] = resultPromise;
+		}
+
+		const result = await resultPromise;
+
+		return result;
+	}
 
 	return {
 		cache,
-		ssr,
-		resolveQueries: async (): Promise<void> => {
-			await Promise.all(Object.getOwnPropertyNames(queries).map(key => queries[key]));
-		},
-		// eslint-disable-next-line max-len
-		subscribe: <TData extends { [key: string]: any }, TQueryVariables extends { [key: string]: any }>(
-			options: IMicroGraphQLSubscriptionOptions<TQueryVariables>,
-			subscription: (data: IMicroGraphQLResult<TData>) => void
-		): (() => void) => {
-			const query = cache.prepareQuery(options.query);
 
-			const cached = cache.tryGet<TData>(query, options.variables);
-			if (cached.success) {
-				subscription({
-					loading: false,
-					data: cached.data
-				});
+		async resolveQueries(): Promise<void> {
+			await Promise.all(Object.getOwnPropertyNames(requests).map(key => requests[key]));
+		},
+
+		async query<TData, TVariables>(
+			query: DocumentNode,
+			variables?: TVariables,
+			options: IMicroGraphQLQueryOptions = {
+				skipCache: false
 			}
+		): Promise<IMicroGraphQLResult<TData>> {
+			const { skipCache } = options;
 
-			const key = objectHash({ query, variables: options.variables });
+			const preparedQuery = cache.prepareQuery(query);
 
-			const subs = subscriptions.get(key) || [];
-			subs.push(subscription);
-			subscriptions.set(key, subs);
-
-			return (): void => {
-				const toRemoveFrom = subscriptions.get(key)!;
-				subscriptions.set(
-					key,
-					toRemoveFrom.filter(s => s !== subscription)
-				);
-			};
-		},
-		// eslint-disable-next-line max-len
-		query: async <TData extends { [key: string]: any }, TQueryVariables extends { [key: string]: any }>(
-			inputQuery: string,
-			options?: IMicroGraphQLQueryOptions<TQueryVariables>
-		): Promise<IMicroGraphQLResult<TData>> => {
-			const { skipCache }: IMicroGraphQLQueryOptions<TQueryVariables> = {
-				skipCache: false,
-				...options
-			};
-
-			const query = cache.prepareQuery(inputQuery);
 			if (!skipCache) {
-				const cachedResult = !skipCache && cache.tryGet<TData>(query, options && options.variables);
+				const data = cache.readQuery<TData, TVariables>(preparedQuery, variables);
 
-				if (cachedResult.success) {
+				if (typeof data !== 'undefined') {
 					return {
-						loading: false,
-						data: cachedResult.data
+						data
 					};
 				}
 			}
 
-			const key = objectHash({ query, variables: options && options.variables });
+			const result = await doRequest<TData, TVariables>(query, variables);
 
-			const subs = subscriptions.get(key);
+			return result;
+		},
 
-			if (subs) {
-				subs.forEach(sub => sub({
-					loading: true
-				}));
-			}
+		async mutate<TData, TVariables>(
+			mutation: DocumentNode,
+			variables: TVariables
+		): Promise<IMicroGraphQLResult<TData>> {
+			const preparedMutation = cache.prepareQuery(mutation);
 
-			const resultPromise = (async (): Promise<IMicroGraphQLResult<TData>> => {
-				const response = await fetch(url, {
-					method: 'post',
-					headers: {
-						'Content-Type': 'application/json'
-					},
-					body: JSON.stringify({
-						query,
-						variables: options && options.variables
-					})
-				});
-
-				const json = (await response.json()) as IMicroGraphQLResult<TData>;
-
-				if (json.data) {
-					cache.trySet<TData>(query, options && options.variables, json.data);
-				}
-
-				return {
-					errors: undefined,
-					...json,
-					loading: false
-				};
-			})();
-
-			if (ssr) {
-				queries[key] = resultPromise;
-			}
-
-			const result = await resultPromise;
-
-			if (subs) {
-				subs.forEach(sub => sub(result));
-			}
+			const result = await doRequest<TData, TVariables>(preparedMutation, variables);
 
 			return result;
 		}

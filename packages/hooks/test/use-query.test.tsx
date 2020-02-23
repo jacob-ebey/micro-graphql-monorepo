@@ -1,191 +1,183 @@
 /* eslint-disable import/no-extraneous-dependencies */
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 import * as React from 'react';
-import { renderHook } from '@testing-library/react-hooks';
+import { renderHook, RenderHookResult } from '@testing-library/react-hooks';
 import 'jest-fetch-mock';
 
 import {
 	createCache,
 	createClient,
-	IMicroGraphQLClient,
-	IMicroGraphQLResult
+	IMicroGraphQLClient
 } from '@micro-graphql/core';
 
 import {
 	// eslint-disable-next-line @typescript-eslint/no-unused-vars
 	MicroGraphQLProvider,
 	useQuery,
-	IUseQueryResult
+	IUseQueryResult,
+	IUseQueryOptions
 } from '../src';
 
+import {
+	query,
+	variables,
+	response,
+	errorResponse
+} from './mock-film';
+
+// eslint-disable-next-line max-len
+type RenderFunc = (opts?: IUseQueryOptions) => RenderHookResult<IUseQueryOptions, IUseQueryResult<unknown>>;
+
 describe('use-query', () => {
-	const query = `
-		query TestQuery($id: ID) {
-			film(filmID: $id) {
-				title
-			}
-		}
-	`;
+	const expected = JSON.parse(response);
+	const errorExpected = JSON.parse(errorResponse);
 
-	const variables = { id: 1 };
+	describe('client', () => {
+		let client: IMicroGraphQLClient;
+		let render: RenderFunc;
+		let resolve: () => void;
+		beforeEach(() => {
+			global.fetch.resetMocks();
+			global.fetch.mockResponse(() => new Promise(done => {
+				resolve = (): void => {
+					done(response);
+				};
+			}));
 
-	interface IQueryResult {
-		film: {
-			title: string;
-		};
-	}
+			client = createClient({
+				cache: createCache(),
+				fetch: global.fetch,
+				url: 'https://swapi-graphql.netlify.com/.netlify/functions/index'
+			});
 
-	const validateResult = (result?: IMicroGraphQLResult<IQueryResult>): void => {
-		expect(result).toBeTruthy();
-		expect(result!.data).toBeTruthy();
-		expect(result!.data!.film).toBeTruthy();
-		expect(result!.data!.film.title).toBe('A New Hope');
-	};
+			// eslint-disable-next-line max-len
+			render = ({ skip, skipCache }: IUseQueryOptions = {}): RenderHookResult<IUseQueryOptions, IUseQueryResult<unknown>> => renderHook(
+				(props = {}) => {
+					const options: IUseQueryOptions | undefined = skip
+						|| skipCache
+						|| props.skip
+						|| props.skipCache ? {
+							skip,
+							skipCache,
+							...props
+						} : undefined;
 
-	// eslint-disable-next-line @typescript-eslint/no-explicit-any
-	let options: any;
-	let client: IMicroGraphQLClient;
-	let wrapper: (provided?: IMicroGraphQLClient) => React.FC;
+					return useQuery(query, variables, options);
+				},
+				{
+					wrapper: ({ children }) => (
+						<MicroGraphQLProvider client={client}>
+							{children}
+						</MicroGraphQLProvider>
+					)
+				}
+			);
+		});
 
-	beforeEach(() => {
-		global.fetch.resetMocks();
-		global.fetch.mockResponse(`
-			{"data":{"film":{"title":"A New Hope"}}}
-		`);
+		it('can skip query', async () => {
+			const wrapper = render({ skip: true });
 
-		options = {
-			fetch: global.fetch,
-			url: 'https://swapi-graphql.netlify.com/.netlify/functions/index',
-			cache: createCache()
-		};
-		client = createClient(options);
-		wrapper = (provided?: IMicroGraphQLClient) => ({
-			children
-		}: React.PropsWithChildren<{}>): React.ReactElement => (
-			<MicroGraphQLProvider client={provided || client}>{children}</MicroGraphQLProvider>
-		);
-	});
+			expect(wrapper.result.current.loading).toBe(false);
+			expect(wrapper.result.current.data).toBeUndefined();
+			expect(global.fetch.mock.calls.length).toBe(0);
 
-	it('can skip query', async () => {
-		const { result } = renderHook(
-			() => useQuery<IQueryResult, {}>({
-				query,
-				variables,
-				skip: true
-			}),
-			{ wrapper: wrapper() }
-		);
+			wrapper.unmount();
+		});
 
-		expect(result.current.loading).toBe(false);
-	});
+		it('can handle bad response', async () => {
+			global.fetch.resetMocks();
+			global.fetch.mockResponse(() => new Promise(done => {
+				resolve = (): void => {
+					done('Some genaric error message lol');
+				};
+			}));
 
-	it('can make ssr query', async () => {
-		const ssrClient = createClient({ ...options, ssr: true });
-		const { result } = renderHook(
-			() => useQuery<IQueryResult, {}>(React.useMemo(() => ({
-				query,
-				variables
-			}), [])),
-			{ wrapper: wrapper(ssrClient) }
-		);
+			const wrapper = render();
+			expect(wrapper.result.current.loading).toBe(true);
 
-		expect(result.current.loading).toBe(true);
+			resolve();
+			await wrapper.waitForNextUpdate();
+			expect(wrapper.result.current.loading).toBe(false);
+			expect(wrapper.result.current.data).toBeUndefined();
+			expect(wrapper.result.current.networkError).toBeTruthy();
+			expect(global.fetch.mock.calls.length).toBe(1);
 
-		await ssrClient.resolveQueries();
-		const { result: result2 } = renderHook(
-			() => useQuery<IQueryResult, {}>(React.useMemo(() => ({
-				query,
-				variables
-			}), [])),
-			{ wrapper: wrapper(ssrClient) }
-		);
+			wrapper.unmount();
+		});
 
-		expect(result2.current.loading).toBe(false);
-		validateResult(result2.current);
-	});
+		it('can handle error response', async () => {
+			global.fetch.resetMocks();
+			global.fetch.mockResponse(() => new Promise(done => {
+				resolve = (): void => {
+					done(errorResponse);
+				};
+			}));
 
-	it('can make query', async () => {
-		const { result, waitForNextUpdate } = renderHook(
-			() => useQuery<IQueryResult, {}>(React.useMemo(() => ({
-				query,
-				variables
-			}), [])),
-			{ wrapper: wrapper() }
-		);
+			const wrapper = render();
+			expect(wrapper.result.current.loading).toBe(true);
 
-		expect(result.current.loading).toBe(true);
+			resolve();
+			await wrapper.waitForNextUpdate();
+			expect(wrapper.result.current.loading).toBe(false);
+			expect(wrapper.result.current.data).toEqual(errorExpected.data);
+			expect(wrapper.result.current.errors).toEqual(errorExpected.errors);
+			expect(wrapper.result.current.networkError).toBeUndefined();
+			expect(global.fetch.mock.calls.length).toBe(1);
 
-		await waitForNextUpdate();
+			wrapper.unmount();
+		});
 
-		expect(result.current.loading).toBe(false);
-		validateResult(result.current);
-	});
+		it('can make query', async () => {
+			const wrapper = render();
+			expect(wrapper.result.current.loading).toBe(true);
 
-	it('can make subsequent srr batched queries', async () => {
-		const ssrClient = createClient({ ...options, ssr: true });
-		const { result } = renderHook<unknown, IUseQueryResult<IQueryResult>[]>(
-			() => [
-				useQuery<IQueryResult, {}>(React.useMemo(() => ({
-					query,
-					variables
-				}), [])),
-				useQuery<IQueryResult, {}>(React.useMemo(() => ({
-					query,
-					variables
-				}), []))
-			],
-			{ wrapper: wrapper(ssrClient) }
-		);
+			resolve();
+			await wrapper.waitForNextUpdate();
+			expect(wrapper.result.current.loading).toBe(false);
+			expect(wrapper.result.current.data).toEqual(expected.data);
+			expect(global.fetch.mock.calls.length).toBe(1);
 
-		expect(result.current[0].loading).toBe(true);
-		expect(result.current[1].loading).toBe(true);
+			wrapper.unmount();
+		});
 
-		await ssrClient.resolveQueries();
+		it('can reload query from cache', async () => {
+			const wrapper = render();
+			expect(wrapper.result.current.loading).toBe(true);
 
-		const { result: result2 } = renderHook<unknown, IUseQueryResult<IQueryResult>[]>(
-			() => [
-				useQuery<IQueryResult, {}>(React.useMemo(() => ({
-					query,
-					variables
-				}), [])),
-				useQuery<IQueryResult, {}>(React.useMemo(() => ({
-					query,
-					variables
-				}), []))
-			],
-			{ wrapper: wrapper(ssrClient) }
-		);
+			resolve();
+			await wrapper.waitForNextUpdate();
+			expect(wrapper.result.current.loading).toBe(false);
+			expect(wrapper.result.current.data).toEqual(expected.data);
+			expect(global.fetch.mock.calls.length).toBe(1);
 
-		expect(result2.current[0].loading).toBe(false);
-		validateResult(result2.current[0]);
-		expect(result2.current[1].loading).toBe(false);
-		validateResult(result2.current[1]);
-		expect(result2.current[1].data).toBe(result2.current[0].data);
-	});
+			wrapper.rerender();
+			expect(wrapper.result.current.loading).toBe(false);
+			expect(wrapper.result.current.data).toEqual(expected.data);
+			expect(global.fetch.mock.calls.length).toBe(1);
 
-	it('can make subsequent batched queries', async () => {
-		const { result, waitForNextUpdate } = renderHook<unknown, IUseQueryResult<IQueryResult>[]>(
-			() => [
-				useQuery<IQueryResult, {}>(React.useMemo(() => ({
-					query,
-					variables
-				}), [])),
-				useQuery<IQueryResult, {}>(React.useMemo(() => ({
-					query,
-					variables
-				}), []))
-			],
-			{ wrapper: wrapper() }
-		);
+			wrapper.unmount();
+		});
 
-		expect(result.current[0].loading).toBe(true);
-		expect(result.current[1].loading).toBe(true);
+		it('can reload query from network', async () => {
+			const wrapper = render();
+			expect(wrapper.result.current.loading).toBe(true);
 
-		await waitForNextUpdate();
+			resolve();
+			await wrapper.waitForNextUpdate();
+			expect(wrapper.result.current.loading).toBe(false);
+			expect(wrapper.result.current.data).toEqual(expected.data);
+			expect(global.fetch.mock.calls.length).toBe(1);
 
-		expect(result.current[0].loading).toBe(false);
-		validateResult(result.current[0]);
-		expect(result.current[1].loading).toBe(false);
-		validateResult(result.current[1]);
-		expect(result.current[1].data).toBe(result.current[0].data);
+			wrapper.rerender({ skipCache: true });
+			expect(wrapper.result.current.loading).toBe(true);
+
+			resolve();
+			await wrapper.waitForNextUpdate();
+			expect(wrapper.result.current.loading).toBe(false);
+			expect(wrapper.result.current.data).toEqual(expected.data);
+			expect(global.fetch.mock.calls.length).toBe(2);
+
+			wrapper.unmount();
+		});
 	});
 });
