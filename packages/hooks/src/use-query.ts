@@ -28,9 +28,12 @@ export function useQuery<TData, TVariables>(
 	}
 ): IUseQueryResult<TData> {
 	const client = useClient();
+	const [, setRerender] = React.useState<{}>({});
+	const initialRenderRef = React.useRef(true);
 
 	const { skip, skipCache } = options;
 
+	initialRenderRef.current = true;
 	const dataRef = React.useRef<TData | undefined>(undefined);
 	const unsubscribe = React.useMemo(
 		() => client.cache.subscribe<TData, TVariables>(
@@ -38,10 +41,15 @@ export function useQuery<TData, TVariables>(
 			variables,
 			(data) => {
 				dataRef.current = data;
+				if (!initialRenderRef.current) {
+					setRerender({});
+				}
 			}
 		),
-		[client, query, variables]
+		[client, query, variables, setRerender]
 	);
+
+	initialRenderRef.current = false;
 
 	React.useEffect(() => unsubscribe, [unsubscribe]);
 
