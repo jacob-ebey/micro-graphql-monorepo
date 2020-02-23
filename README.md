@@ -1,6 +1,6 @@
 # Micro GraphQL [![codecov](https://codecov.io/gh/jacob-ebey/micro-graphql-monorepo/branch/master/graph/badge.svg)](https://codecov.io/gh/jacob-ebey/micro-graphql-monorepo)
 
-A tiny, simple to use GraphQL client with SSR support.
+A tiny, simple to use GraphQL client with SSR support, a normalized cache, and support for global state management.
 
 ## Bundle sizes
 
