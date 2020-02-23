@@ -59,10 +59,11 @@ Install the required packages:
 Wrap your app in a client provider and you can use the hooks in any child component.
 
 ```jsx
-import React from "react";
-import gql from "graphql-tag";
-import { createCache, createClient } from "@micro-graphql/core";
-import { MicroGraphQLProvider, useQuery } from "@micro-graphql/hooks";
+import React from 'react';
+import gql from 'graphql-tag';
+import { createCache, createClient } from '@micro-graphql/core';
+import { MicroGraphQLProvider, useQuery } from '@micro-graphql/hooks';
+import merge from 'deepmerge';
 
 const microClient = createClient({
   fetch,
@@ -86,28 +87,45 @@ const HOME_QUERY = gql`
 `;
 
 const Home = () => {
-  const [episodeId, setEpisodeId] = React.useState("ZmlsbXM6MQ==");
-  const handleEpisodeChanged = React.useCallback(
-    event => {
-      event.preventDefault();
-      setEpisodeId(`${event.target.value}`);
-    },
-    [setEpisodeId]
-  );
+  const [clientData, setClientData] = useClientQuery(
+		HOME_CLIENT_QUERY,
+		undefined,
+		{
+			home: {
+				__typename: 'Home',
+				selectedEpisode: 'ZmlsbXM6MQ=='
+			}
+		}
+	);
+
+	const handleEpisodeChanged = React.useCallback(
+		(event) => {
+			event.preventDefault();
+
+			setClientData(
+				merge(clientData, {
+					home: {
+						selectedEpisode: event.target.value
+					}
+				})
+			);
+		},
+		[clientData, setClientData]
+	);
 
   const { data, errors, loading } = useQuery(
     HOME_QUERY
     React.useMemo(
       () => ({
-        id: episodeId
+        id: clientData.home.selectedEpisode
       }),
-      [episodeId]
+      [clientData]
     )
   );
 
   const selector =
     data && data.allFilms && data.allFilms.films ? (
-      <select defaultValue={`${episodeId}`} onChange={handleEpisodeChanged}>
+      <select defaultValue={`${clientData.home.selectedEpisode}`} onChange={handleEpisodeChanged}>
         {data.allFilms.films.map(({ title, id }) => (
           <option key={id} value={`${id}`}>
             {title || id}

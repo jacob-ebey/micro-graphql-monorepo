@@ -12,6 +12,7 @@
     "@micro-graphql/core": "^1.0.0",
     "@micro-graphql/hooks": "^1.0.1",
     "@testing-library/react": "^9.4.0",
+    "deepmerge": "^4.2.2",
     "graphql-tag": "^2.10.3",
     "react": "^16.8.2"
   },
