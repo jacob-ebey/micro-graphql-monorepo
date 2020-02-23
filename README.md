@@ -6,7 +6,6 @@ A tiny, simple to use GraphQL client with SSR support.
 
 - **@micro-graphql/core:** ![npm bundle size](https://img.shields.io/bundlephobia/min/@micro-graphql/core?style=flat-square) ![npm bundle size](https://img.shields.io/bundlephobia/minzip/@micro-graphql/core?style=flat-square)
 - **@micro-graphql/hooks:** ![npm bundle size](https://img.shields.io/bundlephobia/min/@micro-graphql/hooks?style=flat-square) ![npm bundle size](https://img.shields.io/bundlephobia/minzip/@micro-graphql/hooks?style=flat-square)
-- **[@micro-graphql/smart-cache](#smart-cache):** ![npm bundle size](https://img.shields.io/bundlephobia/min/@micro-graphql/smart-cache?style=flat-square) ![npm bundle size](https://img.shields.io/bundlephobia/minzip/@micro-graphql/smart-cache?style=flat-square)
 
 ## Full examples
 
@@ -61,13 +60,13 @@ Wrap your app in a client provider and you can use the hooks in any child compon
 
 ```jsx
 import React from "react";
-import { createCache, createClient, objectHash, gql } from "@micro-graphql/core";
+import gql from "graphql-tag";
+import { createCache, createClient } from "@micro-graphql/core";
 import { MicroGraphQLProvider, useQuery } from "@micro-graphql/hooks";
 
 const microClient = createClient({
   fetch,
   cache: createCache(),
-  hash: objectHash,
   url: "https://swapi-graphql.netlify.com/.netlify/functions/index"
 });
 
@@ -97,12 +96,10 @@ const Home = () => {
   );
 
   const { data, errors, loading } = useQuery(
+    HOME_QUERY
     React.useMemo(
       () => ({
-        query: HOME_QUERY,
-        variables: {
-          id: episodeId
-        }
+        id: episodeId
       }),
       [episodeId]
     )
