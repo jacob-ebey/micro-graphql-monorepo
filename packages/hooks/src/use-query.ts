@@ -28,7 +28,7 @@ export function useQuery<TData, TVariables>(
 	}
 ): IUseQueryResult<TData> {
 	const client = useClient();
-	const [rerender, setRerender] = React.useState(false);
+	const [, setRerender] = React.useState<{}>({});
 	const initialRenderRef = React.useRef(true);
 
 	const { skip, skipCache } = options;
@@ -42,11 +42,11 @@ export function useQuery<TData, TVariables>(
 			(data) => {
 				dataRef.current = data;
 				if (!initialRenderRef.current) {
-					setRerender(!rerender);
+					setRerender({});
 				}
 			}
 		),
-		[client, query, variables, rerender, setRerender]
+		[client, query, variables, setRerender]
 	);
 
 	initialRenderRef.current = false;
