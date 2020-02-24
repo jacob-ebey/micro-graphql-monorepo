@@ -1,0 +1,7 @@
+type Home {
+  selectedEpisode: ID
+}
+
+extend type Root {
+  home: Home!
+}
