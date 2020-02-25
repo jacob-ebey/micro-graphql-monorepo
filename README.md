@@ -82,6 +82,14 @@ const HOME_QUERY = gql`
   }
 `;
 
+const HOME_CLIENT_QUERY = gql`
+	query HomeClient {
+		home {
+			selectedEpisode
+		}
+	}
+`;
+
 const Home = () => {
   const [clientData, setClientData] = useClientQuery(
     HOME_CLIENT_QUERY,
