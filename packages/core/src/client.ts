@@ -1,3 +1,4 @@
+import * as deepmerge from 'deepmerge';
 import { DocumentNode } from 'graphql/language/ast';
 import { print } from 'graphql/language/printer';
 import { GraphQLFormattedError } from 'graphql/error/formatError';
@@ -12,6 +13,11 @@ export interface IMicroGraphQLResult<TData> {
 
 export interface IMicroGraphQLQueryOptions {
 	skipCache?: boolean;
+	request?: RequestInit;
+}
+
+export interface IMicroGraphQLMutationOptions {
+	request?: RequestInit;
 }
 
 export interface IMicroGraphQLClient {
@@ -24,7 +30,8 @@ export interface IMicroGraphQLClient {
 	): Promise<IMicroGraphQLResult<TData>>;
 	mutate<TData, TVariables>(
 		mutation: DocumentNode,
-		variables?: TVariables
+		variables?: TVariables,
+		options?: IMicroGraphQLMutationOptions
 	): Promise<IMicroGraphQLResult<TData>>;
 }
 
@@ -33,24 +40,31 @@ export interface IMicroGraphQLClientConfig {
 	fetch(input: RequestInfo, init?: RequestInit | undefined): Promise<Response>;
 	ssr?: boolean;
 	url: string;
+	request?: RequestInit;
 }
 
 export function createClient({
 	cache,
 	fetch,
 	ssr,
-	url
+	url,
+	request: globalRequest
 }: IMicroGraphQLClientConfig): IMicroGraphQLClient {
 	const requests: { [key: string]: Promise<unknown> } = {};
 
 	async function doRequest<TData, TVariables>(
 		query: DocumentNode,
-		variables?: TVariables
+		variables?: TVariables,
+		request?: RequestInit
 	): Promise<IMicroGraphQLResult<TData>> {
+		const options = deepmerge<RequestInit>(globalRequest || {}, request || {});
+
 		const resultPromise = (async (): Promise<IMicroGraphQLResult<TData>> => {
 			const response = await fetch(url, {
-				method: 'post',
+				...options,
+				method: options.method || 'post',
 				headers: {
+					...(options.headers || {}),
 					'Content-Type': 'application/json'
 				},
 				body: JSON.stringify({
@@ -91,7 +105,7 @@ export function createClient({
 				skipCache: false
 			}
 		): Promise<IMicroGraphQLResult<TData>> {
-			const { skipCache } = options;
+			const { request, skipCache } = options;
 
 			const preparedQuery = cache.prepareQuery(query);
 
@@ -105,18 +119,21 @@ export function createClient({
 				}
 			}
 
-			const result = await doRequest<TData, TVariables>(query, variables);
+			const result = await doRequest<TData, TVariables>(query, variables, request);
 
 			return result;
 		},
 
 		async mutate<TData, TVariables>(
 			mutation: DocumentNode,
-			variables: TVariables
+			variables: TVariables,
+			options: IMicroGraphQLMutationOptions = {}
 		): Promise<IMicroGraphQLResult<TData>> {
+			const { request } = options;
+
 			const preparedMutation = cache.prepareQuery(mutation);
 
-			const result = await doRequest<TData, TVariables>(preparedMutation, variables);
+			const result = await doRequest<TData, TVariables>(preparedMutation, variables, request);
 
 			return result;
 		}

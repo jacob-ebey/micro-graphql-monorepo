@@ -51,6 +51,87 @@ describe('client', () => {
 			expect(global.fetch.mock.calls.length).toBe(1);
 		});
 
+		it('can use global request config', async () => {
+			global.fetch.resetMocks();
+			global.fetch.mockResponse(response);
+
+			client = createClient({
+				cache: createCache(),
+				fetch: global.fetch,
+				url: 'https://swapi-graphql.netlify.com/.netlify/functions/index',
+				request: {
+					headers: {
+						Authorization: 'Bearer 1234'
+					}
+				}
+			});
+
+			promise = client.query(query, variables);
+
+			const result = await promise;
+			expect(result).toEqual(expected);
+			expect(global.fetch.mock.calls.length).toBe(1);
+			// eslint-disable-next-line @typescript-eslint/no-explicit-any
+			expect((global.fetch.mock.calls[0][1]!.headers as any).Authorization).toBe('Bearer 1234');
+		});
+
+		it('can use request config from query', async () => {
+			global.fetch.resetMocks();
+			global.fetch.mockResponse(response);
+
+			client = createClient({
+				cache: createCache(),
+				fetch: global.fetch,
+				url: 'https://swapi-graphql.netlify.com/.netlify/functions/index'
+			});
+
+			promise = client.query(query, variables, {
+				request: {
+					headers: {
+						Authorization: 'Bearer 1234'
+					}
+				}
+			});
+
+			const result = await promise;
+			expect(result).toEqual(expected);
+			expect(global.fetch.mock.calls.length).toBe(1);
+			// eslint-disable-next-line @typescript-eslint/no-explicit-any
+			expect((global.fetch.mock.calls[0][1]!.headers as any).Authorization).toBe('Bearer 1234');
+		});
+
+		it('can merge request configs for query', async () => {
+			global.fetch.resetMocks();
+			global.fetch.mockResponse(response);
+
+			client = createClient({
+				cache: createCache(),
+				fetch: global.fetch,
+				url: 'https://swapi-graphql.netlify.com/.netlify/functions/index',
+				request: {
+					headers: {
+						Authorization: 'Bearer 1234'
+					}
+				}
+			});
+
+			promise = client.query(query, variables, {
+				request: {
+					headers: {
+						Extra: 'something'
+					}
+				}
+			});
+
+			const result = await promise;
+			expect(result).toEqual(expected);
+			expect(global.fetch.mock.calls.length).toBe(1);
+			// eslint-disable-next-line @typescript-eslint/no-explicit-any
+			const headers = global.fetch.mock.calls[0][1]!.headers as any;
+			expect(headers.Authorization).toBe('Bearer 1234');
+			expect(headers.Extra).toBe('something');
+		});
+
 		it('can use cache', async () => {
 			const result = await promise;
 			expect(result).toEqual(expected);
