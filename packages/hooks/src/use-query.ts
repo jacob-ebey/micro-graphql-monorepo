@@ -33,7 +33,7 @@ export function useQuery<TData, TVariables>(
 
 	const preparedQuery = React.useMemo(() => client.cache.prepareQuery(query), [client, query]);
 
-	const { skip, skipCache } = options;
+	const { request, skip, skipCache } = options;
 
 	initialRenderRef.current = true;
 	const dataRef = React.useRef<TData | undefined>(undefined);
@@ -61,7 +61,7 @@ export function useQuery<TData, TVariables>(
 			return undefined;
 		}
 
-		return client.query<TData, TVariables>(query, variables, { skipCache });
+		return client.query<TData, TVariables>(query, variables, { skipCache, request });
 	}, [query, variables, skip, skipCache]);
 
 	const [result, error, state] = usePromise(promise, [promise]);

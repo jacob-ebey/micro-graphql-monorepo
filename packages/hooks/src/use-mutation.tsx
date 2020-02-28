@@ -3,6 +3,7 @@ import * as React from 'react';
 import { DocumentNode } from 'graphql/language/ast';
 
 import {
+	IMicroGraphQLMutationOptions,
 	IMicroGraphQLResult
 } from '@micro-graphql/core';
 
@@ -25,7 +26,8 @@ export type UseMutationResult<TData> = [
 // eslint-disable-next-line max-len
 export function useMutation<TData, TVariables>(
 	mutation: DocumentNode,
-	variables: TVariables | undefined
+	variables: TVariables | undefined,
+	options: IMicroGraphQLMutationOptions = {}
 ): UseMutationResult<TData> {
 	const client = useClient();
 
@@ -35,8 +37,8 @@ export function useMutation<TData, TVariables>(
 	const [result, error, state] = usePromise(promise, [promise]);
 
 	const mutate = React.useCallback(() => {
-		setPromise(client.mutate(mutation, variables));
-	}, [mutation, variables, setPromise]);
+		setPromise(client.mutate(mutation, variables, options));
+	}, [mutation, variables, setPromise, options]);
 
 	return [
 		{
