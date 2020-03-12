@@ -83,11 +83,11 @@ const HOME_QUERY = gql`
 `;
 
 const HOME_CLIENT_QUERY = gql`
-	query HomeClient {
-		home {
-			selectedEpisode
-		}
-	}
+  query HomeClient {
+    home {
+      selectedEpisode
+    }
+  }
 `;
 
 const Home = () => {
