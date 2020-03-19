@@ -60,7 +60,10 @@ export function useQuery<TData, TVariables>(
 
 	React.useEffect(() => unsubscribe, [unsubscribe]);
 
-	const skippedSsr = React.useMemo(() => !!clientOnly && !!client.ssr, [clientOnly, client]);
+	const skippedSsr = React.useMemo(
+		() => !skip && !!clientOnly && client.ssr, // TODO: Add coverage for rest of this statement
+		[skip, clientOnly, client]
+	);
 
 	const promise = React.useMemo(() => {
 		if (skip || skippedSsr) {
