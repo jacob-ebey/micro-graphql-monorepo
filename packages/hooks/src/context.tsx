@@ -21,6 +21,7 @@ export const MicroGraphQLContext = React.createContext<IMicroGraphQLClient>({
 	async resolveQueries(): Promise<void> {
 		throw new MicroGraphQLHooksNoClientProvidedError(noClientError);
 	},
+	ssr: false,
 	cache: {
 		prepareQuery(): DocumentNode {
 			throw new MicroGraphQLHooksNoClientProvidedError(noClientError);

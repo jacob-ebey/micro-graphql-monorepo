@@ -96,7 +96,25 @@ describe('use-query', () => {
 
 			const wrapper = render({ skip: true, clientOnly: true });
 
-			expect(wrapper.result.current.loading).toBe(true);
+			expect(wrapper.result.current.loading).toBe(false);
+			await client.resolveQueries();
+			expect(wrapper.result.current.data).toBeUndefined();
+			expect(global.fetch.mock.calls.length).toBe(0);
+
+			wrapper.unmount();
+		});
+
+		it('can skip ssr query with loading on client', async () => {
+			client = createClient({
+				cache: createCache(),
+				fetch: global.fetch,
+				url: 'https://swapi-graphql.netlify.com/.netlify/functions/index',
+				ssr: true
+			});
+
+			const wrapper = render({ clientOnly: true });
+
+			expect(wrapper.result.current.loading).toBe(false);
 			await client.resolveQueries();
 			expect(wrapper.result.current.data).toBeUndefined();
 			expect(global.fetch.mock.calls.length).toBe(0);
