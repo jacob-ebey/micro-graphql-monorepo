@@ -1,6 +1,6 @@
 {
   "name": "@micro-graphql/example",
-  "version": "1.0.5",
+  "version": "1.1.0",
   "license": "MIT",
   "main": "lib/index.js",
   "typings": "lib/index.d.ts",
@@ -9,8 +9,8 @@
     "dev": "tsc --build ./tsconfig.json -w"
   },
   "dependencies": {
-    "@micro-graphql/core": "^1.0.5",
-    "@micro-graphql/hooks": "^1.0.5",
+    "@micro-graphql/core": "^1.1.0",
+    "@micro-graphql/hooks": "^1.1.0",
     "@testing-library/react": "^9.4.0",
     "deepmerge": "^4.2.2",
     "graphql-tag": "^2.10.3",
