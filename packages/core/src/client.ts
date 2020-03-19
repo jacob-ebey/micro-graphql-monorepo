@@ -22,6 +22,7 @@ export interface IMicroGraphQLMutationOptions {
 
 export interface IMicroGraphQLClient {
 	cache: IMicroGraphQLCache;
+	ssr?: boolean;
 	resolveQueries(): Promise<void>;
 	query<TData, TVariables>(
 		query: DocumentNode,
@@ -93,6 +94,7 @@ export function createClient({
 
 	return {
 		cache,
+		ssr,
 
 		async resolveQueries(): Promise<void> {
 			await Promise.all(Object.getOwnPropertyNames(requests).map(key => requests[key]));
