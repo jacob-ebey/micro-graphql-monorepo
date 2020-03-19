@@ -51,14 +51,16 @@ describe('use-query', () => {
 			});
 
 			// eslint-disable-next-line max-len
-			render = ({ skip, skipCache }: IUseQueryOptions = {}): RenderHookResult<IUseQueryOptions, IUseQueryResult<unknown>> => renderHook(
+			render = ({ skip, skipCache, clientOnly }: IUseQueryOptions = {}): RenderHookResult<IUseQueryOptions, IUseQueryResult<unknown>> => renderHook(
 				(props = {}) => {
 					const options: IUseQueryOptions | undefined = skip
 						|| skipCache
 						|| props.skip
-						|| props.skipCache ? {
+						|| props.skipCache
+						|| props.clientOnly ? {
 							skip,
 							skipCache,
+							clientOnly,
 							...props
 						} : undefined;
 
@@ -80,6 +82,37 @@ describe('use-query', () => {
 			expect(wrapper.result.current.loading).toBe(false);
 			expect(wrapper.result.current.data).toBeUndefined();
 			expect(global.fetch.mock.calls.length).toBe(0);
+
+			wrapper.unmount();
+		});
+
+		it('can skip ssr query', async () => {
+			client = createClient({
+				cache: createCache(),
+				fetch: global.fetch,
+				url: 'https://swapi-graphql.netlify.com/.netlify/functions/index',
+				ssr: true
+			});
+
+			const wrapper = render({ skip: true, clientOnly: true });
+
+			expect(wrapper.result.current.loading).toBe(true);
+			await client.resolveQueries();
+			expect(wrapper.result.current.data).toBeUndefined();
+			expect(global.fetch.mock.calls.length).toBe(0);
+
+			wrapper.unmount();
+		});
+
+		it('can still rnder ssr clientOnly', async () => {
+			const wrapper = render({ clientOnly: true });
+			expect(wrapper.result.current.loading).toBe(true);
+
+			resolve();
+			await wrapper.waitForNextUpdate();
+			expect(wrapper.result.current.loading).toBe(false);
+			expect(wrapper.result.current.data).toEqual(expected.data);
+			expect(global.fetch.mock.calls.length).toBe(1);
 
 			wrapper.unmount();
 		});

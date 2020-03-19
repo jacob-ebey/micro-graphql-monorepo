@@ -16,6 +16,7 @@ export interface IUseQueryResult<TData> extends IMicroGraphQLResult<TData> {
 
 export interface IUseQueryOptions
 	extends IMicroGraphQLQueryOptions {
+	clientOnly?: boolean;
 	skip?: boolean;
 }
 
@@ -23,6 +24,7 @@ export function useQuery<TData, TVariables>(
 	query: DocumentNode,
 	variables: TVariables | undefined,
 	options: IUseQueryOptions = {
+		clientOnly: false,
 		skip: false,
 		skipCache: false
 	}
@@ -33,7 +35,9 @@ export function useQuery<TData, TVariables>(
 
 	const preparedQuery = React.useMemo(() => client.cache.prepareQuery(query), [client, query]);
 
-	const { request, skip, skipCache } = options;
+	const {
+		request, skip, skipCache, clientOnly
+	} = options;
 
 	initialRenderRef.current = true;
 	const dataRef = React.useRef<TData | undefined>(undefined);
@@ -56,8 +60,10 @@ export function useQuery<TData, TVariables>(
 
 	React.useEffect(() => unsubscribe, [unsubscribe]);
 
+	const skippedSsr = React.useMemo(() => !!clientOnly && !!client.ssr, [clientOnly, client]);
+
 	const promise = React.useMemo(() => {
-		if (skip) {
+		if (skip || skippedSsr) {
 			return undefined;
 		}
 
@@ -69,7 +75,7 @@ export function useQuery<TData, TVariables>(
 	return {
 		...result,
 		data: dataRef.current,
-		loading: state === UsePromiseState.pending,
+		loading: state === UsePromiseState.pending || skippedSsr,
 		networkError: error
 	};
 }
