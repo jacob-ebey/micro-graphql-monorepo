@@ -55,6 +55,7 @@ describe('use-query', () => {
 				(props = {}) => {
 					const options: IUseQueryOptions | undefined = skip
 						|| skipCache
+						|| clientOnly
 						|| props.skip
 						|| props.skipCache
 						|| props.clientOnly ? {
@@ -114,7 +115,7 @@ describe('use-query', () => {
 
 			const wrapper = render({ clientOnly: true });
 
-			expect(wrapper.result.current.loading).toBe(false);
+			expect(wrapper.result.current.loading).toBe(true);
 			await client.resolveQueries();
 			expect(wrapper.result.current.data).toBeUndefined();
 			expect(global.fetch.mock.calls.length).toBe(0);

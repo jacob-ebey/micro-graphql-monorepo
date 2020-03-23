@@ -61,7 +61,7 @@ export function useQuery<TData, TVariables>(
 	React.useEffect(() => unsubscribe, [unsubscribe]);
 
 	const skippedSsr = React.useMemo(
-		() => !skip && !!clientOnly && client.ssr, // TODO: Add coverage for rest of this statement
+		() => !skip && !!clientOnly && client.ssr,
 		[skip, clientOnly, client]
 	);
 
@@ -71,7 +71,7 @@ export function useQuery<TData, TVariables>(
 		}
 
 		return client.query<TData, TVariables>(query, variables, { skipCache, request });
-	}, [query, variables, skip, skipCache]);
+	}, [query, variables, skip, skippedSsr, skipCache]);
 
 	const [result, error, state] = usePromise(promise, [promise]);
 
@@ -79,6 +79,9 @@ export function useQuery<TData, TVariables>(
 		...result,
 		data: dataRef.current,
 		loading: state === UsePromiseState.pending || skippedSsr,
+		errors: ((result && result.errors) || error) ? [...(error ? [{
+			message: error.message
+		}] : []), ...((result && result.errors) || [])] : undefined,
 		networkError: error
 	};
 }
