@@ -20,7 +20,7 @@ export interface IUseMutationResult<TData> extends IMicroGraphQLResult<TData> {
 
 export type UseMutationResult<TData, TVariables> = [
 	IUseMutationResult<TData>,
-	(variables: TVariables) => void
+	(variables?: TVariables) => void
 ];
 
 // eslint-disable-next-line max-len
