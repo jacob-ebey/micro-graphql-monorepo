@@ -44,6 +44,9 @@ export function useMutation<TData, TVariables>(
 		{
 			...result,
 			loading: state === UsePromiseState.pending,
+			errors: ((result && result.errors) || error) ? [...(error ? [{
+				message: error.message
+			}] : []), ...((result && result.errors) || [])] : undefined,
 			networkError: error
 		},
 		mutate

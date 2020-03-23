@@ -79,6 +79,9 @@ export function useQuery<TData, TVariables>(
 		...result,
 		data: dataRef.current,
 		loading: state === UsePromiseState.pending || skippedSsr,
+		errors: ((result && result.errors) || error) ? [...(error ? [{
+			message: error.message
+		}] : []), ...((result && result.errors) || [])] : undefined,
 		networkError: error
 	};
 }
