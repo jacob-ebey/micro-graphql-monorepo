@@ -14,7 +14,7 @@
     "@micro-graphql/example": "^1.1.2",
     "@micro-graphql/hooks": "^1.1.2",
     "isomorphic-fetch": "^2.2.1",
-    "next": "^9.2.1",
+    "next": "^11.1.0",
     "react": "^16.12.0",
     "react-dom": "^16.12.0",
     "tacit-css": "^1.5.1"
